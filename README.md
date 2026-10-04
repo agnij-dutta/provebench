@@ -61,11 +61,11 @@ Prerequisites: Node 20+, `nargo` 1.0.0-beta.19 (`noirup -v 1.0.0-beta.19`), `bb`
 git clone https://github.com/agnij-dutta/provebench && cd provebench
 npm install
 bash scripts/get-rapidsnark.sh                      # native Groth16 prover (iden3 prebuilt)
-npm run bench -- --reps 3 --workloads merkle20,cap_check
-cat results/*.md                                    # the table for your machine
+npm run bench -- --reps 3 --workloads merkle20,cap_check --machine my-run
+cat results/my-run.md                               # the table for your machine
 ```
 
-Compiled circuits, inputs and all Groth16 keys except SHA-256 are committed, so this needs no circom install and no trusted-setup download. The run writes `results/<machine>.json` and `results/<machine>.md`.
+Compiled circuits, inputs and all Groth16 keys except SHA-256 are committed, so this needs no circom install and no trusted-setup download. The run writes `results/my-run.json` and `results/my-run.md`. Without `--machine`, the file name is derived from your hardware, and the runner refuses to overwrite an existing file.
 
 Browser suite:
 
@@ -90,6 +90,7 @@ npm run dev        # http://localhost:5173, then press "Run benchmark"
 | `--cooldown S` | `0` | seconds to sleep between cells (useful on fanless or thermally limited machines) |
 | `--note "text"` | none | what else was running; printed with every table |
 | `--merge` | off | re-run some cells and keep the rest of an existing results file |
+| `--overwrite` | off | replace an existing results file (without it, or `--merge`, the runner refuses) |
 
 The runner exits non-zero if any cell fails to build, prove or verify. Cells whose keys are missing (for example the SHA-256 Groth16 zkey) are skipped with a message.
 

@@ -2,7 +2,7 @@
 // ProveBench native runner.
 //
 //   node bench/run.mjs [--reps 5] [--workloads a,b] [--systems x,y] [--machine id]
-//                      [--merge] [--note "conditions"] [--cooldown seconds]
+//                      [--merge | --overwrite] [--note "conditions"] [--cooldown seconds]
 //
 // Runs every workload x system, N timed repetitions each (after one warmup),
 // and writes results/<machine>.json and results/<machine>.md.
@@ -297,6 +297,16 @@ function runSnarkjs(w) {
 
 // ---------- main ----------
 const m = machine();
+// The default id is derived from the hardware, so a contributor with the same
+// laptop as a committed reference run would silently replace it. Check before
+// spending minutes benchmarking.
+if (existsSync(join(root, 'results', `${m.id}.json`)) && !args.merge && !args.overwrite) {
+  console.error(
+    `results/${m.id}.json already exists. Pass --machine <new-id> to write a new file, ` +
+      '--merge to re-run some cells into it, or --overwrite to replace it.',
+  );
+  process.exit(2);
+}
 const startedAt = new Date().toISOString();
 const loadStart = load();
 log(`machine ${m.id}, reps ${REPS}, load ${loadStart.join(' ')}`);
