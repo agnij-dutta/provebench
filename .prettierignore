@@ -1,0 +1,11 @@
+node_modules
+web/node_modules
+web/dist
+web/public/data
+build
+artifacts
+results
+inputs
+package-lock.json
+web/package-lock.json
+*.md

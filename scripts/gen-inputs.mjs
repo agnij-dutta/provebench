@@ -16,7 +16,8 @@ const H = (a, b) => F.toObject(poseidon([a, b]));
 // tiny deterministic PRNG (mulberry32) so inputs are reproducible
 function rng(seed) {
   return () => {
-    seed |= 0; seed = (seed + 0x6d2b79f5) | 0;
+    seed |= 0;
+    seed = (seed + 0x6d2b79f5) | 0;
     let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
@@ -97,10 +98,8 @@ const inputs = {};
 // Idiomatic Noir variants (Poseidon2): same private inputs, public output
 // is computed by the circuit itself.
 inputs.poseidon2_chain = { seed: inputs.poseidon_chain.seed };
-{
-  const { root, ...rest } = inputs.merkle20;
-  inputs.merkle20_poseidon2 = rest;
-}
+// The Poseidon2 tree computes its own root, so the circomlib root is dropped.
+inputs.merkle20_poseidon2 = Object.fromEntries(Object.entries(inputs.merkle20).filter(([k]) => k !== 'root'));
 
 // --- write ---
 const toToml = (obj) =>

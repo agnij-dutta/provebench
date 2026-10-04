@@ -26,7 +26,8 @@ export const WORKLOADS: Workload[] = [
     id: 'cap_check',
     label: 'Spend cap check',
     short: 'Cap check',
-    blurb: '16 private payments, each under a per-tx cap, running total under a budget. The core of an agent spending mandate.',
+    blurb:
+      '16 private payments, each under a per-tx cap, running total under a budget. The core of an agent spending mandate.',
     noir: 'cap_check',
     circom: 'cap_check',
     defaultOn: true,

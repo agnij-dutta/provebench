@@ -9,7 +9,11 @@ fn main(root: pub Field, leaf: Field, index: Field, siblings: [Field; DEPTH]) {
     let mut cur = leaf;
     for i in 0..DEPTH {
         let s = siblings[i];
-        cur = if bits[i] == 1 { hash_2([s, cur]) } else { hash_2([cur, s]) };
+        cur = if bits[i] == 1 {
+            hash_2([s, cur])
+        } else {
+            hash_2([cur, s])
+        };
     }
     assert(cur == root);
 }

@@ -10,13 +10,21 @@
     "build:circom": "bash scripts/build-circom.sh",
     "bench": "node bench/run.mjs",
     "web:dev": "npm --prefix web run dev",
-    "web:build": "npm --prefix web run build"
+    "web:build": "npm --prefix web run build",
+    "lint": "eslint .",
+    "format": "prettier --write . && bash scripts/fmt-noir.sh",
+    "format:check": "prettier --check . && bash scripts/fmt-noir.sh --check"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@noble/curves": "^2.4.0",
     "@noir-lang/noir_js": "^1.0.0-beta.19",
     "circomlib": "^2.0.5",
     "circomlibjs": "^0.1.7",
-    "snarkjs": "^0.7.6"
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.9",
+    "snarkjs": "^0.7.6",
+    "typescript-eslint": "^8.71.0"
   }
 }

@@ -41,8 +41,20 @@ const WORKLOADS = [
   { id: 'sha256_1k', label: 'SHA-256 of 1 KiB', noir: 'sha256_1k', circom: 'sha256_1k' },
   { id: 'ecdsa_secp256k1', label: 'ECDSA secp256k1 verify', noir: 'ecdsa_secp256k1', circom: null },
   { id: 'cap_check', label: 'Spend cap check (16 payments, u64)', noir: 'cap_check', circom: 'cap_check' },
-  { id: 'poseidon2_chain', label: 'Variant: Poseidon2 chain (N=100), Noir-native hash', noir: 'poseidon2_chain', circom: null, variant: true },
-  { id: 'merkle20_poseidon2', label: 'Variant: Merkle depth 20 (Poseidon2), Noir-native hash', noir: 'merkle20_poseidon2', circom: null, variant: true },
+  {
+    id: 'poseidon2_chain',
+    label: 'Variant: Poseidon2 chain (N=100), Noir-native hash',
+    noir: 'poseidon2_chain',
+    circom: null,
+    variant: true,
+  },
+  {
+    id: 'merkle20_poseidon2',
+    label: 'Variant: Merkle depth 20 (Poseidon2), Noir-native hash',
+    noir: 'merkle20_poseidon2',
+    circom: null,
+    variant: true,
+  },
 ];
 const SYSTEMS = ['noir-ultrahonk', 'circom-rapidsnark', 'circom-snarkjs'];
 
@@ -60,13 +72,24 @@ mkdirSync(tmp, { recursive: true });
 
 // ---------- helpers ----------
 const sh = (cmd) => {
-  try { return execSync(cmd, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { return null; }
+  try {
+    return execSync(cmd, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch {
+    return null;
+  }
 };
 const stats = (xs) => {
   const s = [...xs].sort((a, b) => a - b);
   const q = (p) => s[Math.min(s.length - 1, Math.ceil(p * s.length) - 1)];
   const r = (x) => Math.round(x * 100) / 100;
-  return { median: r(s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2), p90: r(q(0.9)), min: r(s[0]), max: r(s[s.length - 1]), n: s.length, samples: xs.map(r) };
+  return {
+    median: r(s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2),
+    p90: r(q(0.9)),
+    min: r(s[0]),
+    max: r(s[s.length - 1]),
+    n: s.length,
+    samples: xs.map(r),
+  };
 };
 // Run a CLI under /usr/bin/time -l; returns wall ms and max RSS (MB).
 function timed(cmd, argv) {
@@ -78,7 +101,10 @@ function timed(cmd, argv) {
   return { ms, rss_mb: rss, out: p.stdout + p.stderr };
 }
 function node(script, argv) {
-  const p = spawnSync(process.execPath, ['--max-old-space-size=8192', join(root, 'bench', script), ...argv], { encoding: 'utf8', maxBuffer: 1 << 26 });
+  const p = spawnSync(process.execPath, ['--max-old-space-size=8192', join(root, 'bench', script), ...argv], {
+    encoding: 'utf8',
+    maxBuffer: 1 << 26,
+  });
   if (p.status !== 0) throw new Error(`${script} failed:\n${p.stderr}`);
   return JSON.parse(p.stdout.trim().split('\n').pop());
 }
@@ -88,7 +114,16 @@ const sleep = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 
 // core), so it cannot tell you what else was running. Instead, sample how busy
 // the host is over one second while the benchmark itself is idle.
 function hostBusyPct() {
-  const snap = () => os.cpus().reduce((a, c) => { const t = c.times; a.idle += t.idle; a.total += t.user + t.nice + t.sys + t.idle + t.irq; return a; }, { idle: 0, total: 0 });
+  const snap = () =>
+    os.cpus().reduce(
+      (a, c) => {
+        const t = c.times;
+        a.idle += t.idle;
+        a.total += t.user + t.nice + t.sys + t.idle + t.irq;
+        return a;
+      },
+      { idle: 0, total: 0 },
+    );
   const a = snap();
   sleep(1000);
   const b = snap();
@@ -104,7 +139,13 @@ function machine() {
   const model = field('Model Name') ?? os.hostname();
   const chip = field('Chip') ?? os.cpus()[0]?.model;
   const memGb = Math.round(os.totalmem() / 2 ** 30);
-  const id = args.machine ?? `${model}-${chip}-${memGb}gb`.toLowerCase().replace(/apple /g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const id =
+    args.machine ??
+    `${model}-${chip}-${memGb}gb`
+      .toLowerCase()
+      .replace(/apple /g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
   return {
     id,
     model,
@@ -143,19 +184,33 @@ function runNoir(w) {
   timed('bb', ['write_vk', '-b', acir, '-o', dir]);
   const proveArgs = ['prove', '-b', acir, '-w', wit, '-k', join(dir, 'vk'), '-o', dir];
   timed('bb', proveArgs); // warmup (CRS cache, page cache)
-  const prove = [], proveRss = [];
-  for (let i = 0; i < REPS; i++) { const r = timed('bb', proveArgs); prove.push(r.ms); proveRss.push(r.rss_mb); }
+  const prove = [],
+    proveRss = [];
+  for (let i = 0; i < REPS; i++) {
+    const r = timed('bb', proveArgs);
+    prove.push(r.ms);
+    proveRss.push(r.rss_mb);
+  }
   const verifyArgs = ['verify', '-p', join(dir, 'proof'), '-k', join(dir, 'vk'), '-i', join(dir, 'public_inputs')];
   timed('bb', verifyArgs);
-  const verify = [], verifyRss = [];
-  for (let i = 0; i < REPS; i++) { const r = timed('bb', verifyArgs); verify.push(r.ms); verifyRss.push(r.rss_mb); }
+  const verify = [],
+    verifyRss = [];
+  for (let i = 0; i < REPS; i++) {
+    const r = timed('bb', verifyArgs);
+    verify.push(r.ms);
+    verifyRss.push(r.rss_mb);
+  }
   return {
     size: { kind: 'ultrahonk_gates', value: sizes.noir[w.noir].gates, acir_opcodes: sizes.noir[w.noir].acir_opcodes },
     witness_ms: stats(wres.times_ms),
     prove_ms: stats(prove),
     verify_ms: stats(verify),
     proof_bytes: statSync(join(dir, 'proof')).size,
-    peak_rss_mb: { witness: Math.round(wres.max_rss_kb / 1024), prove: Math.round(Math.max(...proveRss)), verify: Math.round(Math.max(...verifyRss)) },
+    peak_rss_mb: {
+      witness: Math.round(wres.max_rss_kb / 1024),
+      prove: Math.round(Math.max(...proveRss)),
+      verify: Math.round(Math.max(...verifyRss)),
+    },
     verified: true,
     notes: 'bb CLI wall time incl. process start + CRS load; default verifier target (ZK, Poseidon2 transcript).',
   };
@@ -172,19 +227,27 @@ function runRapidsnark(w) {
   mkdirSync(dir, { recursive: true });
   const { wtns, res } = circomWitness(w, dir);
   const zkey = join(root, 'artifacts/circom', `${w.circom}.zkey`);
-  const proof = join(dir, 'proof.json'), pub = join(dir, 'public.json');
+  const proof = join(dir, 'proof.json'),
+    pub = join(dir, 'public.json');
   const pargs = [zkey, wtns, proof, pub];
   timed(join(RAPIDSNARK, 'prover'), pargs); // warmup
-  const prove = [], proveRss = [];
-  for (let i = 0; i < REPS; i++) { const r = timed(join(RAPIDSNARK, 'prover'), pargs); prove.push(r.ms); proveRss.push(r.rss_mb); }
+  const prove = [],
+    proveRss = [];
+  for (let i = 0; i < REPS; i++) {
+    const r = timed(join(RAPIDSNARK, 'prover'), pargs);
+    prove.push(r.ms);
+    proveRss.push(r.rss_mb);
+  }
   const vargs = [join(root, 'artifacts/circom', `${w.circom}.vkey.json`), pub, proof];
-  const verify = [], verifyRss = [];
+  const verify = [],
+    verifyRss = [];
   let ok = true;
   timed(join(RAPIDSNARK, 'verifier'), vargs);
   for (let i = 0; i < REPS; i++) {
     const r = timed(join(RAPIDSNARK, 'verifier'), vargs);
     ok = ok && /valid/i.test(r.out) && !/invalid/i.test(r.out);
-    verify.push(r.ms); verifyRss.push(r.rss_mb);
+    verify.push(r.ms);
+    verifyRss.push(r.rss_mb);
   }
   return {
     size: { kind: 'r1cs_constraints', value: sizes.circom[w.circom].constraints, wires: sizes.circom[w.circom].wires },
@@ -193,9 +256,14 @@ function runRapidsnark(w) {
     verify_ms: stats(verify),
     proof_bytes: 256,
     proof_json_bytes: statSync(proof).size,
-    peak_rss_mb: { witness: Math.round(res.max_rss_kb / 1024), prove: Math.round(Math.max(...proveRss)), verify: Math.round(Math.max(...verifyRss)) },
+    peak_rss_mb: {
+      witness: Math.round(res.max_rss_kb / 1024),
+      prove: Math.round(Math.max(...proveRss)),
+      verify: Math.round(Math.max(...verifyRss)),
+    },
     verified: ok,
-    notes: 'rapidsnark CLI wall time incl. process start + zkey load. Proof size = 256 B (A, B, C as uncompressed BN254 points).',
+    notes:
+      'rapidsnark CLI wall time incl. process start + zkey load. Proof size = 256 B (A, B, C as uncompressed BN254 points).',
   };
 }
 
@@ -214,7 +282,8 @@ function runSnarkjs(w) {
     proof_json_bytes: statSync(join(dir, 'proof.json')).size,
     peak_rss_mb: { witness: Math.round(res.max_rss_kb / 1024), prove: Math.round(r.max_rss_kb / 1024), verify: null },
     verified: r.ok,
-    notes: 'snarkjs in-process after warmup (zkey re-read from disk each prove). Peak RSS covers the whole worker (prove + verify).',
+    notes:
+      'snarkjs in-process after warmup (zkey re-read from disk each prove). Peak RSS covers the whole worker (prove + verify).',
   };
 }
 
@@ -231,7 +300,10 @@ for (const w of workloads) {
       log(`skip ${w.id} / ${s}: zkey missing (run scripts/build-circom.sh ${w.circom})`);
       continue;
     }
-    if (s === 'circom-rapidsnark' && !existsSync(RAPIDSNARK)) { log(`skip ${s}: run scripts/get-rapidsnark.sh`); continue; }
+    if (s === 'circom-rapidsnark' && !existsSync(RAPIDSNARK)) {
+      log(`skip ${s}: run scripts/get-rapidsnark.sh`);
+      continue;
+    }
     if (COOLDOWN_S > 0 && results.length) sleep(COOLDOWN_S * 1000);
     const l0 = load();
     const busy = hostBusyPct();
@@ -240,8 +312,18 @@ for (const w of workloads) {
     try {
       const r = s === 'noir-ultrahonk' ? runNoir(w) : s === 'circom-rapidsnark' ? runRapidsnark(w) : runSnarkjs(w);
       r.e2e_ms_median = Math.round((r.witness_ms.median + r.prove_ms.median) * 100) / 100;
-      results.push({ workload: w.id, workload_label: w.label, variant: !!w.variant, system: s, load_avg_1m_before: l0[0], host_busy_pct_before: busy, ...r });
-      log(`  witness ${r.witness_ms.median} ms, prove ${r.prove_ms.median} ms (p90 ${r.prove_ms.p90}), verify ${r.verify_ms.median} ms, proof ${r.proof_bytes} B  [${Math.round(performance.now() - t0)} ms]`);
+      results.push({
+        workload: w.id,
+        workload_label: w.label,
+        variant: !!w.variant,
+        system: s,
+        load_avg_1m_before: l0[0],
+        host_busy_pct_before: busy,
+        ...r,
+      });
+      log(
+        `  witness ${r.witness_ms.median} ms, prove ${r.prove_ms.median} ms (p90 ${r.prove_ms.p90}), verify ${r.verify_ms.median} ms, proof ${r.proof_bytes} B  [${Math.round(performance.now() - t0)} ms]`,
+      );
     } catch (e) {
       log(`  FAILED: ${e.message.split('\n')[0]}`);
       results.push({ workload: w.id, workload_label: w.label, system: s, error: e.message.slice(0, 2000) });
@@ -268,14 +350,22 @@ const doc = {
   reps: REPS,
   cooldown_s: COOLDOWN_S,
   // The note must describe what else was running; it is printed with every table.
-  load_avg: { start: loadStart, end: load(), note: typeof args.note === 'string' ? args.note : 'os.loadavg() 1/5/15 min. No note on host conditions was given for this run.' },
+  load_avg: {
+    start: loadStart,
+    end: load(),
+    note:
+      typeof args.note === 'string'
+        ? args.note
+        : 'os.loadavg() 1/5/15 min. No note on host conditions was given for this run.',
+  },
   methodology: {
     timing: 'median and p90 over N reps after 1 warmup',
     witness: 'Noir: noir_js execute (WASM ACVM) in Node. Circom: snarkjs wtns.calculate (circom WASM) in Node.',
     noir_prove: 'native bb CLI, UltraHonk, default target',
     circom_prove: 'Groth16 via rapidsnark (native C++/asm) and via snarkjs (Node)',
     e2e: 'witness median + prove median',
-    setup: 'Groth16 zkeys from PSE perpetual powers of tau (ppot_0080) + bare phase 2 (no contribution): benchmark only, not a secure setup',
+    setup:
+      'Groth16 zkeys from PSE perpetual powers of tau (ppot_0080) + bare phase 2 (no contribution): benchmark only, not a secure setup',
   },
   results: merged,
 };
@@ -286,7 +376,10 @@ log(`wrote results/${m.id}.json and results/${m.id}.md`);
 
 function toMarkdown(d) {
   const fmt = (x) => (x == null ? 'n/a' : x >= 1000 ? `${(x / 1000).toFixed(2)} s` : `${x.toFixed(x < 10 ? 2 : 0)} ms`);
-  const sz = (r) => (r.size.kind === 'ultrahonk_gates' ? `${r.size.value.toLocaleString('en-US')} gates` : `${r.size.value.toLocaleString('en-US')} constraints`);
+  const sz = (r) =>
+    r.size.kind === 'ultrahonk_gates'
+      ? `${r.size.value.toLocaleString('en-US')} gates`
+      : `${r.size.value.toLocaleString('en-US')} constraints`;
   const lines = [
     `# ProveBench native results: ${d.machine.model} (${d.machine.chip}, ${d.machine.memory_gb} GB)`,
     '',
@@ -300,17 +393,35 @@ function toMarkdown(d) {
     '|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|',
   ];
   for (const r of d.results) {
-    if (r.error) { lines.push(`| ${r.workload} | ${r.system} | | | FAILED | | | | | | |`); continue; }
-    lines.push(`| ${r.workload} | ${r.system} | ${sz(r)} | ${fmt(r.witness_ms.median)} | **${fmt(r.prove_ms.median)}** | ${fmt(r.prove_ms.p90)} | ${fmt(r.verify_ms.median)} | ${r.proof_bytes.toLocaleString('en-US')} B | ${r.peak_rss_mb.prove} MB | ${r.host_busy_pct_before == null ? 'n/a' : `${r.host_busy_pct_before}%`} | ${r.load_avg_1m_before} |`);
+    if (r.error) {
+      lines.push(`| ${r.workload} | ${r.system} | | | FAILED | | | | | | |`);
+      continue;
+    }
+    lines.push(
+      `| ${r.workload} | ${r.system} | ${sz(r)} | ${fmt(r.witness_ms.median)} | **${fmt(r.prove_ms.median)}** | ${fmt(r.prove_ms.p90)} | ${fmt(r.verify_ms.median)} | ${r.proof_bytes.toLocaleString('en-US')} B | ${r.peak_rss_mb.prove} MB | ${r.host_busy_pct_before == null ? 'n/a' : `${r.host_busy_pct_before}%`} | ${r.load_avg_1m_before} |`,
+    );
   }
   lines.push('', 'Notes:', '');
-  for (const r of d.results.filter((r) => r.rerun_at)) lines.push(`- \`${r.workload} / ${r.system}\` was re-run separately at ${r.rerun_at} (load 1m before: ${r.load_avg_1m_before}).`);
-  lines.push('- Host busy before: CPU utilisation of the whole machine over 1 s, sampled while the benchmark was idle just before the cell. It measures other processes; load 1m does not, because it also counts the benchmark\'s own threads.');
-  lines.push('- `noir-ultrahonk`: proof timed as a native `bb prove` CLI call (includes process start and CRS load). Witness via noir_js in Node.');
-  lines.push('- `circom-rapidsnark`: Groth16 via the native rapidsnark CLI (includes zkey load). Witness via snarkjs (circom WASM) in Node.');
+  for (const r of d.results.filter((r) => r.rerun_at))
+    lines.push(
+      `- \`${r.workload} / ${r.system}\` was re-run separately at ${r.rerun_at} (load 1m before: ${r.load_avg_1m_before}).`,
+    );
+  lines.push(
+    "- Host busy before: CPU utilisation of the whole machine over 1 s, sampled while the benchmark was idle just before the cell. It measures other processes; load 1m does not, because it also counts the benchmark's own threads.",
+  );
+  lines.push(
+    '- `noir-ultrahonk`: proof timed as a native `bb prove` CLI call (includes process start and CRS load). Witness via noir_js in Node.',
+  );
+  lines.push(
+    '- `circom-rapidsnark`: Groth16 via the native rapidsnark CLI (includes zkey load). Witness via snarkjs (circom WASM) in Node.',
+  );
   lines.push('- `circom-snarkjs`: Groth16 via snarkjs in Node, in-process after warmup.');
-  lines.push('- Rows marked `Variant` use Poseidon2 (Noir-native) instead of circomlib Poseidon, so they are not like-for-like with Circom.');
-  lines.push('- ECDSA secp256k1 has no Circom row: circom-ecdsa is ~1.5M constraints and needs a 2^21 ptau and a GB-scale zkey (see TODO).');
+  lines.push(
+    '- Rows marked `Variant` use Poseidon2 (Noir-native) instead of circomlib Poseidon, so they are not like-for-like with Circom.',
+  );
+  lines.push(
+    '- ECDSA secp256k1 has no Circom row: circom-ecdsa is ~1.5M constraints and needs a 2^21 ptau and a GB-scale zkey (see TODO).',
+  );
   lines.push('- Groth16 setup is a bare phase 2 (no contribution). Fine for timing, not a secure setup.');
   return lines.join('\n') + '\n';
 }

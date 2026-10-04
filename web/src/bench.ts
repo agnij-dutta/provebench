@@ -10,7 +10,14 @@ import { Barretenberg, UltraHonkBackend } from '@aztec/bb.js';
 import * as snarkjs from 'snarkjs';
 import type { SystemId } from './workloads';
 
-export interface Stats { median: number; p90: number; min: number; max: number; n: number; samples: number[] }
+export interface Stats {
+  median: number;
+  p90: number;
+  min: number;
+  max: number;
+  n: number;
+  samples: number[];
+}
 export interface CellResult {
   workload: string;
   system: SystemId;
@@ -55,7 +62,10 @@ async function fetchBytes(path: string, onProgress?: (got: number, total: number
   }
   const out = new Uint8Array(got);
   let o = 0;
-  for (const c of chunks) { out.set(c, o); o += c.length; }
+  for (const c of chunks) {
+    out.set(c, o);
+    o += c.length;
+  }
   return out;
 }
 const fetchJSON = async (path: string) => {
@@ -94,7 +104,9 @@ export async function runNoir(circuitName: string, reps: number, progress: Progr
   let proof = await backend.generateProof(w0);
   const first = performance.now() - t0;
 
-  const witness: number[] = [], prove: number[] = [], verify: number[] = [];
+  const witness: number[] = [],
+    prove: number[] = [],
+    verify: number[] = [];
   let ok = true;
   for (let i = 0; i < reps; i++) {
     progress(`rep ${i + 1}/${reps}: witness`, i / reps);
@@ -112,7 +124,8 @@ export async function runNoir(circuitName: string, reps: number, progress: Progr
     ok = (await backend.verifyProof(proof)) && ok;
     verify.push(performance.now() - t);
   }
-  const ws = stats(witness), ps = stats(prove);
+  const ws = stats(witness),
+    ps = stats(prove);
   return {
     workload: circuitName,
     system: 'noir-ultrahonk',
@@ -131,7 +144,10 @@ export async function runCircom(name: string, reps: number, progress: Progress):
   progress('downloading circuit wasm');
   const wasm = await fetchBytes(`circom/${name}.wasm`);
   const zkey = await fetchBytes(`circom/${name}.zkey`, (got, total) =>
-    progress(`downloading proving key ${(got / 1e6).toFixed(1)}${total ? ` / ${(total / 1e6).toFixed(1)}` : ''} MB`, total ? got / total : undefined),
+    progress(
+      `downloading proving key ${(got / 1e6).toFixed(1)}${total ? ` / ${(total / 1e6).toFixed(1)}` : ''} MB`,
+      total ? got / total : undefined,
+    ),
   );
   const vkey = await fetchJSON(`circom/${name}.vkey.json`);
   const input = await fetchJSON(`inputs/${name}.json`);
@@ -154,7 +170,9 @@ export async function runCircom(name: string, reps: number, progress: Progress):
   let last = await once();
   const first = performance.now() - t0;
 
-  const witness: number[] = [], prove: number[] = [], verify: number[] = [];
+  const witness: number[] = [],
+    prove: number[] = [],
+    verify: number[] = [];
   let ok = true;
   for (let i = 0; i < reps; i++) {
     progress(`rep ${i + 1}/${reps}: witness + proving`, i / reps);
@@ -167,7 +185,8 @@ export async function runCircom(name: string, reps: number, progress: Progress):
     ok = (await snarkjs.groth16.verify(vkey, last.publicSignals, last.proof)) && ok;
     verify.push(performance.now() - t);
   }
-  const ws = stats(witness), ps = stats(prove);
+  const ws = stats(witness),
+    ps = stats(prove);
   return {
     workload: name,
     system: 'circom-groth16',

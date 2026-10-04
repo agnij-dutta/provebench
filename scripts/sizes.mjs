@@ -13,7 +13,10 @@ const out = { noir: {}, circom: {} };
 
 for (const f of readdirSync(join(root, 'artifacts/noir')).filter((f) => f.endsWith('.json'))) {
   const name = f.replace('.json', '');
-  const txt = execFileSync('bb', ['gates', '-b', join(root, 'artifacts/noir', f)], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+  const txt = execFileSync('bb', ['gates', '-b', join(root, 'artifacts/noir', f)], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
   const j = JSON.parse(txt.slice(txt.indexOf('{')));
   const fn = j.functions[0];
   out.noir[name] = { gates: fn.circuit_size, acir_opcodes: fn.acir_opcodes };
@@ -23,7 +26,11 @@ for (const f of readdirSync(join(root, 'circuits/circom')).filter((f) => f.endsW
   const name = f.replace('.circom', '');
   const tmp = mkdtempSync(join(tmpdir(), 'pb-'));
   try {
-    const txt = execFileSync('circom', [join(root, 'circuits/circom', f), '--O2', '--r1cs', '-o', tmp], { encoding: 'utf8' })
+    const txt = execFileSync('circom', [join(root, 'circuits/circom', f), '--O2', '--r1cs', '-o', tmp], {
+      encoding: 'utf8',
+    })
+      // circom colours its output; strip ANSI escapes before parsing.
+      // eslint-disable-next-line no-control-regex
       .replace(/\x1b\[[0-9;]*m/g, '');
     const num = (re) => Number(txt.match(re)?.[1]);
     out.circom[name] = {

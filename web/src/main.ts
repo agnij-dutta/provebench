@@ -5,29 +5,77 @@ import { runNoir, runCircom, threadsAvailable, type CellResult } from './bench';
 import { drawCard } from './card';
 
 // ---------- types for reference data ----------
-interface NativeRow { workload: string; system: string; prove_ms?: { median: number }; e2e_ms_median?: number; witness_ms?: { median: number }; verify_ms?: { median: number }; proof_bytes?: number; error?: string; variant?: boolean; size?: { kind: string; value: number } }
-interface NativeDoc { schema: string; generated_at: string; machine: { id: string; model: string; chip: string; memory_gb: number }; load_avg: { start: number[] }; results: NativeRow[] }
-export interface BrowserDoc { schema: 'provebench/browser@1'; generated_at: string; device: DeviceInfo; reps: number; threads: number; app_version: string; results: CellResult[]; note?: string }
-interface Manifest { files: Record<string, number>; reference: { native: NativeDoc[]; browser: BrowserDoc[] } }
-interface RankEntry { who: string; detail: string; kind: 'native' | 'browser' | 'you'; system: SystemId; ms: number }
+interface NativeRow {
+  workload: string;
+  system: string;
+  prove_ms?: { median: number };
+  e2e_ms_median?: number;
+  witness_ms?: { median: number };
+  verify_ms?: { median: number };
+  proof_bytes?: number;
+  error?: string;
+  variant?: boolean;
+  size?: { kind: string; value: number };
+}
+interface NativeDoc {
+  schema: string;
+  generated_at: string;
+  machine: { id: string; model: string; chip: string; memory_gb: number };
+  load_avg: { start: number[] };
+  results: NativeRow[];
+}
+export interface BrowserDoc {
+  schema: 'provebench/browser@1';
+  generated_at: string;
+  device: DeviceInfo;
+  reps: number;
+  threads: number;
+  app_version: string;
+  results: CellResult[];
+  note?: string;
+}
+interface Manifest {
+  files: Record<string, number>;
+  reference: { native: NativeDoc[]; browser: BrowserDoc[] };
+}
+interface RankEntry {
+  who: string;
+  detail: string;
+  kind: 'native' | 'browser' | 'you';
+  system: SystemId;
+  ms: number;
+}
 
 const APP_VERSION = '0.1.0';
-const $ = <T extends HTMLElement = HTMLElement>(sel: string, root: ParentNode = document) => root.querySelector(sel) as T;
-const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+const $ = <T extends HTMLElement = HTMLElement>(sel: string, root: ParentNode = document) =>
+  root.querySelector(sel) as T;
+const esc = (s: string) =>
+  s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 export const fmt = (ms: number | null | undefined) =>
-  ms == null || Number.isNaN(ms) ? 'n/a' : ms >= 1000 ? `${(ms / 1000).toFixed(ms >= 10000 ? 1 : 2)} s` : `${ms < 10 ? ms.toFixed(1) : Math.round(ms)} ms`;
-const fmtParts = (ms: number) => (ms >= 1000 ? [(ms / 1000).toFixed(ms >= 10000 ? 1 : 2), 's'] : [String(Math.round(ms)), 'ms']);
-const bytes = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)} MB` : n >= 1e3 ? `${(n / 1e3).toFixed(1)} KB` : `${n} B`);
+  ms == null || Number.isNaN(ms)
+    ? 'n/a'
+    : ms >= 1000
+      ? `${(ms / 1000).toFixed(ms >= 10000 ? 1 : 2)} s`
+      : `${ms < 10 ? ms.toFixed(1) : Math.round(ms)} ms`;
+const fmtParts = (ms: number) =>
+  ms >= 1000 ? [(ms / 1000).toFixed(ms >= 10000 ? 1 : 2), 's'] : [String(Math.round(ms)), 'ms'];
+const bytes = (n: number) =>
+  n >= 1e6 ? `${(n / 1e6).toFixed(1)} MB` : n >= 1e3 ? `${(n / 1e3).toFixed(1)} KB` : `${n} B`;
 
 let manifest: Manifest = { files: {}, reference: { native: [], browser: [] } };
-let sizes: { noir: Record<string, { gates: number }>; circom: Record<string, { constraints: number }> } = { noir: {}, circom: {} };
+let sizes: { noir: Record<string, { gates: number }>; circom: Record<string, { constraints: number }> } = {
+  noir: {},
+  circom: {},
+};
 let device: DeviceInfo;
 let reps = 3;
 let results: CellResult[] = [];
 let running = false;
 
 const available = (w: Workload, sys: SystemId) =>
-  sys === 'noir-ultrahonk' ? !!w.noir && `noir/${w.noir}.json` in manifest.files : !!w.circom && `circom/${w.circom}.zkey` in manifest.files;
+  sys === 'noir-ultrahonk'
+    ? !!w.noir && `noir/${w.noir}.json` in manifest.files
+    : !!w.circom && `circom/${w.circom}.zkey` in manifest.files;
 
 // ---------- layout ----------
 function shell() {
@@ -148,7 +196,8 @@ function headline() {
   if (!noir || !circom) {
     const n = manifest.reference.native[0];
     const g = (s: string) => n?.results.find((r) => r.workload === 'merkle20' && r.system === s && r.prove_ms);
-    const a = g('noir-ultrahonk'), b = g('circom-rapidsnark');
+    const a = g('noir-ultrahonk'),
+      b = g('circom-rapidsnark');
     if (a && b) {
       noir = { ms: a.prove_ms!.median, src: '' };
       circom = { ms: b.prove_ms!.median, src: '' };
@@ -157,8 +206,12 @@ function headline() {
     }
   }
   const el = $('#headline');
-  if (!noir || !circom) { el.innerHTML = `<div><div class="q">Run the suite to produce the first numbers.</div></div>`; return; }
-  const [nv, nu] = fmtParts(noir.ms), [cv, cu] = fmtParts(circom.ms);
+  if (!noir || !circom) {
+    el.innerHTML = `<div><div class="q">Run the suite to produce the first numbers.</div></div>`;
+    return;
+  }
+  const [nv, nu] = fmtParts(noir.ms),
+    [cv, cu] = fmtParts(circom.ms);
   el.innerHTML = `
     <div><div class="q">Proving a <strong>Merkle membership</strong> (depth 20, Poseidon) ${where}</div><div class="src">${esc(src)} · median prove time</div></div>
     <div class="stat"><div class="k"><i class="sw noir"></i>Noir / UltraHonk</div><div class="v">${nv}<small>${nu}</small></div><div class="sub">${(sizes.noir.merkle20?.gates ?? 0).toLocaleString('en-US')} gates</div></div>
@@ -174,9 +227,12 @@ function renderDevice() {
     ['CPU threads', device.cores ? String(device.cores) : 'hidden'],
     ['Memory hint', device.memory_gb_hint ? `${device.memory_gb_hint} GB` : 'hidden'],
   ];
-  $('#device').innerHTML = chips.map(([k, v]) => `<div class="chip"><div class="k">${k}</div><div class="v">${esc(v)}</div></div>`).join('');
+  $('#device').innerHTML = chips
+    .map(([k, v]) => `<div class="chip"><div class="k">${k}</div><div class="v">${esc(v)}</div></div>`)
+    .join('');
   if (!device.cross_origin_isolated) {
-    $('#iso').innerHTML = `<div class="notice">This page is not cross-origin isolated, so WebAssembly runs single-threaded. Numbers will be slower than they should be. Serve with COOP/COEP headers (see README).</div>`;
+    $('#iso').innerHTML =
+      `<div class="notice">This page is not cross-origin isolated, so WebAssembly runs single-threaded. Numbers will be slower than they should be. Serve with COOP/COEP headers (see README).</div>`;
   }
 }
 
@@ -188,7 +244,11 @@ function renderWorkloads() {
     const zk = w.circom ? manifest.files[`circom/${w.circom}.zkey`] : 0;
     const tags = [
       noirOk ? `<span class="tag">Noir ${(sizes.noir[w.noir!]?.gates ?? 0).toLocaleString('en-US')} gates</span>` : '',
-      circomOk ? `<span class="tag">Circom ${(sizes.circom[w.circom!]?.constraints ?? 0).toLocaleString('en-US')} cons</span>` : w.circom ? `<span class="tag">Circom key not built</span>` : '',
+      circomOk
+        ? `<span class="tag">Circom ${(sizes.circom[w.circom!]?.constraints ?? 0).toLocaleString('en-US')} cons</span>`
+        : w.circom
+          ? `<span class="tag">Circom key not built</span>`
+          : '',
       w.heavy && circomOk ? `<span class="tag warn">downloads ${bytes(zk)}</span>` : '',
       w.variant ? `<span class="tag">variant</span>` : '',
     ].join('');
@@ -200,7 +260,9 @@ function renderWorkloads() {
 }
 
 function selectedWorkloads() {
-  return [...document.querySelectorAll<HTMLInputElement>('#workloads input:checked')].map((i) => WORKLOADS.find((w) => w.id === i.value)!);
+  return [...document.querySelectorAll<HTMLInputElement>('#workloads input:checked')].map((i) =>
+    WORKLOADS.find((w) => w.id === i.value)!,
+  );
 }
 
 // ---------- run ----------
@@ -214,10 +276,16 @@ async function run() {
   go.disabled = true;
   go.textContent = 'Running...';
   const plan: { w: Workload; s: SystemId }[] = [];
-  for (const w of ws) for (const s of ['noir-ultrahonk', 'circom-groth16'] as SystemId[]) if (available(w, s)) plan.push({ w, s });
+  for (const w of ws)
+    for (const s of ['noir-ultrahonk', 'circom-groth16'] as SystemId[]) if (available(w, s)) plan.push({ w, s });
 
   $('#progress').classList.add('on');
-  $('#cells').innerHTML = plan.map((p, i) => `<div class="cell" id="c${i}"><span class="dot" aria-hidden="true"></span><span>${esc(p.w.short)} · ${SYSTEMS[p.s].label}</span><span class="st">queued</span></div>`).join('');
+  $('#cells').innerHTML = plan
+    .map(
+      (p, i) =>
+        `<div class="cell" id="c${i}"><span class="dot" aria-hidden="true"></span><span>${esc(p.w.short)} · ${SYSTEMS[p.s].label}</span><span class="st">queued</span></div>`,
+    )
+    .join('');
   const bar = $('#progress .bar');
   const setP = (frac: number, msg: string) => {
     const pct = Math.round(frac * 100);
@@ -237,7 +305,8 @@ async function run() {
       setP((i + Math.min(f ?? 0, 0.99)) / plan.length, `${w.short} · ${SYSTEMS[s].label}: ${msg}`);
     };
     try {
-      const r = s === 'noir-ultrahonk' ? await runNoir(w.noir!, reps, progress) : await runCircom(w.circom!, reps, progress);
+      const r =
+        s === 'noir-ultrahonk' ? await runNoir(w.noir!, reps, progress) : await runCircom(w.circom!, reps, progress);
       r.workload = w.id;
       results.push(r);
       cell.className = 'cell done';
@@ -266,32 +335,48 @@ function renderResults() {
   if (!results.length) return;
   $('#results').hidden = false;
   const byW = WORKLOADS.filter((w) => results.some((r) => r.workload === w.id));
-  $('#chart').innerHTML = byW.map((w) => {
-    const rows = (['noir-ultrahonk', 'circom-groth16'] as SystemId[]).map((s) => ({ s, r: results.find((x) => x.workload === w.id && x.system === s) }));
-    const max = Math.max(...rows.map(({ r }) => (r && !r.error ? r.e2e_ms_median : 0)), 1);
-    const both = rows.every(({ r }) => r && !r.error);
-    let ratio = '';
-    if (both) {
-      const [a, b] = rows.map(({ r }) => r!.prove_ms.median);
-      ratio = a < b ? `Noir proves ${(b / a).toFixed(1)}x faster` : `Groth16 proves ${(a / b).toFixed(1)}x faster`;
-    }
-    return `<div class="grp">
+  $('#chart').innerHTML = byW
+    .map((w) => {
+      const rows = (['noir-ultrahonk', 'circom-groth16'] as SystemId[]).map((s) => ({
+        s,
+        r: results.find((x) => x.workload === w.id && x.system === s),
+      }));
+      const max = Math.max(...rows.map(({ r }) => (r && !r.error ? r.e2e_ms_median : 0)), 1);
+      const both = rows.every(({ r }) => r && !r.error);
+      let ratio = '';
+      if (both) {
+        const [a, b] = rows.map(({ r }) => r!.prove_ms.median);
+        ratio = a < b ? `Noir proves ${(b / a).toFixed(1)}x faster` : `Groth16 proves ${(a / b).toFixed(1)}x faster`;
+      }
+      return `<div class="grp">
       <div class="grp-h"><span class="n">${esc(w.label)}</span><span class="r">${ratio}</span></div>
-      ${rows.map(({ s, r }) => {
-        const lab = `<span class="lab"><i class="sw ${s === 'noir-ultrahonk' ? 'noir' : 'circom'}"></i>${SYSTEMS[s].label}</span>`;
-        if (!r) return `<div class="row">${lab}<span class="na">${(s === 'noir-ultrahonk' ? w.noir : w.circom) ? 'not run' : 'no equivalent circuit'}</span></div>`;
-        if (r.error) return `<div class="row">${lab}<span class="na">failed</span></div>`;
-        const ww = (r.witness_ms.median / max) * 72, pw = (r.prove_ms.median / max) * 72;
-        return `<div class="row">${lab}<div class="track" tabindex="0" data-w="${w.id}" data-s="${s}" aria-label="${esc(`${SYSTEMS[s].label}, ${w.label}: prove ${fmt(r.prove_ms.median)}, witness ${fmt(r.witness_ms.median)}`)}">
+      ${rows
+        .map(({ s, r }) => {
+          const lab = `<span class="lab"><i class="sw ${s === 'noir-ultrahonk' ? 'noir' : 'circom'}"></i>${SYSTEMS[s].label}</span>`;
+          if (!r)
+            return `<div class="row">${lab}<span class="na">${(s === 'noir-ultrahonk' ? w.noir : w.circom) ? 'not run' : 'no equivalent circuit'}</span></div>`;
+          if (r.error) return `<div class="row">${lab}<span class="na">failed</span></div>`;
+          const ww = (r.witness_ms.median / max) * 72,
+            pw = (r.prove_ms.median / max) * 72;
+          return `<div class="row">${lab}<div class="track" tabindex="0" data-w="${w.id}" data-s="${s}" aria-label="${esc(`${SYSTEMS[s].label}, ${w.label}: prove ${fmt(r.prove_ms.median)}, witness ${fmt(r.witness_ms.median)}`)}">
           <span class="seg-b w" style="width:${ww}%;background-color:${SYSTEMS[s].color}"></span><span class="seg-b p" style="width:${pw}%;background:${SYSTEMS[s].color}"></span>
           <span class="val">${fmt(r.prove_ms.median)} <small>+ ${fmt(r.witness_ms.median)}</small></span></div></div>`;
-      }).join('')}
+        })
+        .join('')}
     </div>`;
-  }).join('');
+    })
+    .join('');
 
-  $('#table').innerHTML = `<table><thead><tr><th>Workload</th><th>System</th><th>Witness</th><th>Prove (med)</th><th>Prove (p90)</th><th>Verify</th><th>First run</th><th>Proof</th><th>Downloaded</th></tr></thead><tbody>
-    ${ok.map((r) => `<tr><td class="name">${esc(WORKLOADS.find((w) => w.id === r.workload)!.short)}</td><td class="name"><span class="sys"><i class="sw ${r.system === 'noir-ultrahonk' ? 'noir' : 'circom'}"></i>${SYSTEMS[r.system].label}</span></td>
-      <td>${fmt(r.witness_ms.median)}</td><td><strong>${fmt(r.prove_ms.median)}</strong></td><td>${fmt(r.prove_ms.p90)}</td><td>${fmt(r.verify_ms.median)}</td><td>${fmt(r.first_run_ms)}</td><td>${bytes(r.proof_bytes)}</td><td>${bytes(r.download_bytes)}</td></tr>`).join('')}
+  $('#table').innerHTML =
+    `<table><thead><tr><th>Workload</th><th>System</th><th>Witness</th><th>Prove (med)</th><th>Prove (p90)</th><th>Verify</th><th>First run</th><th>Proof</th><th>Downloaded</th></tr></thead><tbody>
+    ${ok
+      .map(
+        (
+          r,
+        ) => `<tr><td class="name">${esc(WORKLOADS.find((w) => w.id === r.workload)!.short)}</td><td class="name"><span class="sys"><i class="sw ${r.system === 'noir-ultrahonk' ? 'noir' : 'circom'}"></i>${SYSTEMS[r.system].label}</span></td>
+      <td>${fmt(r.witness_ms.median)}</td><td><strong>${fmt(r.prove_ms.median)}</strong></td><td>${fmt(r.prove_ms.p90)}</td><td>${fmt(r.verify_ms.median)}</td><td>${fmt(r.first_run_ms)}</td><td>${bytes(r.proof_bytes)}</td><td>${bytes(r.download_bytes)}</td></tr>`,
+      )
+      .join('')}
   </tbody></table>`;
   bindTips();
 }
@@ -307,13 +392,17 @@ function bindTips() {
         <dt>witness</dt><dd>${fmt(r.witness_ms.median)}</dd><dt>verify</dt><dd>${fmt(r.verify_ms.median)}</dd>
         <dt>first run</dt><dd>${fmt(r.first_run_ms)}</dd><dt>proof size</dt><dd>${bytes(r.proof_bytes)}</dd><dt>reps</dt><dd>${r.prove_ms.n}</dd></dl>`;
       tip.classList.add('on');
-      const w = tip.offsetWidth, h = tip.offsetHeight;
+      const w = tip.offsetWidth,
+        h = tip.offsetHeight;
       tip.style.left = `${Math.min(window.innerWidth - w - 8, x + 14)}px`;
       tip.style.top = `${Math.max(8, y - h - 12)}px`;
     };
     el.onmousemove = (e) => show(e.clientX, e.clientY);
     el.onmouseleave = () => tip.classList.remove('on');
-    el.onfocus = () => { const b = el.getBoundingClientRect(); show(b.left + 40, b.top); };
+    el.onfocus = () => {
+      const b = el.getBoundingClientRect();
+      show(b.left + 40, b.top);
+    };
     el.onblur = () => tip.classList.remove('on');
   });
 }
@@ -332,13 +421,21 @@ function resultDoc(): BrowserDoc {
 }
 function postText() {
   const g = (s: SystemId) => results.find((r) => r.workload === 'merkle20' && r.system === s && !r.error);
-  const a = g('noir-ultrahonk'), b = g('circom-groth16');
-  const where = device.kind === 'phone' ? "my phone's browser" : device.kind === 'tablet' ? "my tablet's browser" : 'my browser';
+  const a = g('noir-ultrahonk'),
+    b = g('circom-groth16');
+  const where =
+    device.kind === 'phone' ? "my phone's browser" : device.kind === 'tablet' ? "my tablet's browser" : 'my browser';
   const lines = [];
-  if (a && b) lines.push(`Proving a Merkle membership in ${where} (${device.model ?? device.os}, ${device.browser}): Noir/UltraHonk ${fmt(a.prove_ms.median)}, Circom/Groth16 ${fmt(b.prove_ms.median)}.`);
+  if (a && b)
+    lines.push(
+      `Proving a Merkle membership in ${where} (${device.model ?? device.os}, ${device.browser}): Noir/UltraHonk ${fmt(a.prove_ms.median)}, Circom/Groth16 ${fmt(b.prove_ms.median)}.`,
+    );
   else lines.push(`I ran ProveBench in ${where} (${device.model ?? device.os}, ${device.browser}).`);
   const cap = results.filter((r) => r.workload === 'cap_check' && !r.error);
-  if (cap.length) lines.push(`Agent spend-cap proof: ${cap.map((r) => `${SYSTEMS[r.system].label.split(' / ')[1]} ${fmt(r.prove_ms.median)}`).join(', ')}.`);
+  if (cap.length)
+    lines.push(
+      `Agent spend-cap proof: ${cap.map((r) => `${SYSTEMS[r.system].label.split(' / ')[1]} ${fmt(r.prove_ms.median)}`).join(', ')}.`,
+    );
   lines.push('How fast is yours? #ZK #ProveBench');
   return lines.join('\n');
 }
@@ -355,9 +452,17 @@ function download(name: string, blob: Blob) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
-const slug = () => `${(device.model ?? device.os).replace(/[^a-z0-9]+/gi, '-')}-${device.browser.replace(/[^a-z0-9]+/gi, '-')}`.toLowerCase();
+const slug = () =>
+  `${(device.model ?? device.os).replace(/[^a-z0-9]+/gi, '-')}-${device.browser.replace(/[^a-z0-9]+/gi, '-')}`.toLowerCase();
 async function copy(text: string, btn: HTMLButtonElement) {
-  try { await navigator.clipboard.writeText(text); const t = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => (btn.textContent = t), 1400); } catch { /* ignore */ }
+  try {
+    await navigator.clipboard.writeText(text);
+    const t = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(() => (btn.textContent = t), 1400);
+  } catch {
+    /* ignore */
+  }
 }
 
 // ---------- rank ----------
@@ -366,17 +471,42 @@ function rankEntries(w: string, s: SystemId): RankEntry[] {
   const out: RankEntry[] = [];
   for (const b of manifest.reference.browser) {
     const r = b.results.find((x) => x.workload === w && x.system === s && !x.error);
-    if (r) out.push({ who: b.device.label, detail: `browser · ${b.threads} threads`, kind: 'browser', system: s, ms: r.prove_ms.median });
+    if (r)
+      out.push({
+        who: b.device.label,
+        detail: `browser · ${b.threads} threads`,
+        kind: 'browser',
+        system: s,
+        ms: r.prove_ms.median,
+      });
   }
   for (const n of manifest.reference.native) {
     const names = s === 'noir-ultrahonk' ? ['noir-ultrahonk'] : ['circom-rapidsnark', 'circom-snarkjs'];
     for (const r of n.results.filter((x) => x.workload === w && names.includes(x.system) && x.prove_ms)) {
-      const how = r.system === 'noir-ultrahonk' ? 'native bb CLI' : r.system === 'circom-rapidsnark' ? 'native rapidsnark' : 'snarkjs in Node';
-      out.push({ who: `${n.machine.model} (${n.machine.chip.replace('Apple ', '')})`, detail: `${how} · load ${(r as NativeRow & { load_avg_1m_before?: number }).load_avg_1m_before ?? n.load_avg.start[0]}`, kind: 'native', system: s, ms: r.prove_ms!.median });
+      const how =
+        r.system === 'noir-ultrahonk'
+          ? 'native bb CLI'
+          : r.system === 'circom-rapidsnark'
+            ? 'native rapidsnark'
+            : 'snarkjs in Node';
+      out.push({
+        who: `${n.machine.model} (${n.machine.chip.replace('Apple ', '')})`,
+        detail: `${how} · load ${(r as NativeRow & { load_avg_1m_before?: number }).load_avg_1m_before ?? n.load_avg.start[0]}`,
+        kind: 'native',
+        system: s,
+        ms: r.prove_ms!.median,
+      });
     }
   }
   const mine = results.find((x) => x.workload === w && x.system === s && !x.error);
-  if (mine) out.push({ who: `You: ${device.label}`, detail: `browser · ${threadsAvailable()} threads`, kind: 'you', system: s, ms: mine.prove_ms.median });
+  if (mine)
+    out.push({
+      who: `You: ${device.label}`,
+      detail: `browser · ${threadsAvailable()} threads`,
+      kind: 'you',
+      system: s,
+      ms: mine.prove_ms.median,
+    });
   return out.sort((a, b) => a.ms - b.ms);
 }
 function renderRank() {
@@ -389,30 +519,50 @@ function renderRank() {
   const list = rankEntries(w, rankSys);
   const max = Math.max(...list.map((e) => e.ms), 1);
   const el = $('#rank-list');
-  if (!list.length) { el.innerHTML = `<div class="empty">No reference runs for this combination yet. Run the suite and submit yours.</div>`; return; }
-  el.innerHTML = list.map((e, i) => `<div class="rk${e.kind === 'you' ? ' you' : ''}">
+  if (!list.length) {
+    el.innerHTML = `<div class="empty">No reference runs for this combination yet. Run the suite and submit yours.</div>`;
+    return;
+  }
+  el.innerHTML =
+    list
+      .map(
+        (e, i) => `<div class="rk${e.kind === 'you' ? ' you' : ''}">
       <span class="pos">#${i + 1}</span>
       <span class="who"><div>${esc(e.who)}</div><small>${esc(e.detail)}</small></span>
       <span class="b" style="width:${Math.max(2, (e.ms / max) * 100)}%;background:${e.kind === 'native' ? 'var(--s-native)' : SYSTEMS[e.system].color}" aria-hidden="true"></span>
-      <span class="t">${fmt(e.ms)}</span></div>`).join('') +
+      <span class="t">${fmt(e.ms)}</span></div>`,
+      )
+      .join('') +
     `<div class="legend" style="margin:10px 0 0" aria-hidden="true"><span><i class="sw ${rankSys === 'noir-ultrahonk' ? 'noir' : 'circom'}"></i>Browser run</span><span><i class="sw native"></i>Native run (context)</span></div>`;
 }
 
 // ---------- native table ----------
 function renderNative() {
   const n = manifest.reference.native[0];
-  if (!n) { $('#native-table').innerHTML = `<div class="empty">No native results bundled.</div>`; return; }
-  $('#nat-sub').textContent = `${n.machine.model}, ${n.machine.chip}, ${n.machine.memory_gb} GB. Measured ${n.generated_at.slice(0, 10)} with load average ${n.load_avg.start.join(' / ')}: this machine was running other work at the time, so treat these as real-world, not idle-lab, numbers.`;
+  if (!n) {
+    $('#native-table').innerHTML = `<div class="empty">No native results bundled.</div>`;
+    return;
+  }
+  $('#nat-sub').textContent =
+    `${n.machine.model}, ${n.machine.chip}, ${n.machine.memory_gb} GB. Measured ${n.generated_at.slice(0, 10)} with load average ${n.load_avg.start.join(' / ')}: this machine was running other work at the time, so treat these as real-world, not idle-lab, numbers.`;
   const sysName: Record<string, [string, string]> = {
     'noir-ultrahonk': ['Noir / UltraHonk (bb)', 'noir'],
     'circom-rapidsnark': ['Circom / Groth16 (rapidsnark)', 'circom'],
     'circom-snarkjs': ['Circom / Groth16 (snarkjs, Node)', 'circom'],
   };
-  $('#native-table').innerHTML = `<table><thead><tr><th>Workload</th><th>System</th><th>Size</th><th>Witness</th><th>Prove (med)</th><th>Verify</th><th>Proof</th></tr></thead><tbody>
-    ${n.results.filter((r) => !r.error).map((r) => `<tr><td class="name">${esc(WORKLOADS.find((w) => w.id === r.workload)?.short ?? r.workload.replace(/_/g, ' '))}</td>
+  $('#native-table').innerHTML =
+    `<table><thead><tr><th>Workload</th><th>System</th><th>Size</th><th>Witness</th><th>Prove (med)</th><th>Verify</th><th>Proof</th></tr></thead><tbody>
+    ${n.results
+      .filter((r) => !r.error)
+      .map(
+        (
+          r,
+        ) => `<tr><td class="name">${esc(WORKLOADS.find((w) => w.id === r.workload)?.short ?? r.workload.replace(/_/g, ' '))}</td>
       <td class="name"><span class="sys"><i class="sw ${sysName[r.system][1]}"></i>${sysName[r.system][0]}</span></td>
       <td>${r.size ? `${r.size.value.toLocaleString('en-US')} ${r.size.kind === 'ultrahonk_gates' ? 'gates' : 'cons'}` : ''}</td>
-      <td>${fmt(r.witness_ms?.median)}</td><td><strong>${fmt(r.prove_ms?.median)}</strong></td><td>${fmt(r.verify_ms?.median)}</td><td>${bytes(r.proof_bytes ?? 0)}</td></tr>`).join('')}
+      <td>${fmt(r.witness_ms?.median)}</td><td><strong>${fmt(r.prove_ms?.median)}</strong></td><td>${fmt(r.verify_ms?.median)}</td><td>${bytes(r.proof_bytes ?? 0)}</td></tr>`,
+      )
+      .join('')}
   </tbody></table>`;
 }
 
@@ -420,11 +570,17 @@ function renderNative() {
 async function boot() {
   shell();
   const [m, s, d] = await Promise.all([
-    fetch(`${import.meta.env.BASE_URL}data/manifest.json`).then((r) => r.json()).catch(() => manifest),
-    fetch(`${import.meta.env.BASE_URL}data/circuit-sizes.json`).then((r) => r.json()).catch(() => sizes),
+    fetch(`${import.meta.env.BASE_URL}data/manifest.json`)
+      .then((r) => r.json())
+      .catch(() => manifest),
+    fetch(`${import.meta.env.BASE_URL}data/circuit-sizes.json`)
+      .then((r) => r.json())
+      .catch(() => sizes),
     detectDevice(),
   ]);
-  manifest = m; sizes = s; device = d;
+  manifest = m;
+  sizes = s;
+  device = d;
   headline();
   renderDevice();
   renderWorkloads();
@@ -445,17 +601,30 @@ async function boot() {
     renderRank();
   });
   $('#go').addEventListener('click', run);
-  $('#dl-png').addEventListener('click', () => $<HTMLCanvasElement>('#card').toBlob((b) => b && download(`provebench-${slug()}.png`, b)));
-  $('#dl-json').addEventListener('click', () => download(`provebench-${slug()}.json`, new Blob([JSON.stringify(resultDoc(), null, 2)], { type: 'application/json' })));
-  $('#copy-json').addEventListener('click', (e) => copy(JSON.stringify(resultDoc(), null, 2), e.currentTarget as HTMLButtonElement));
-  $('#copy-tweet').addEventListener('click', (e) => copy($<HTMLTextAreaElement>('#tweet').value, e.currentTarget as HTMLButtonElement));
+  $('#dl-png').addEventListener('click', () =>
+    $<HTMLCanvasElement>('#card').toBlob((b) => b && download(`provebench-${slug()}.png`, b)),
+  );
+  $('#dl-json').addEventListener('click', () =>
+    download(
+      `provebench-${slug()}.json`,
+      new Blob([JSON.stringify(resultDoc(), null, 2)], { type: 'application/json' }),
+    ),
+  );
+  $('#copy-json').addEventListener('click', (e) =>
+    copy(JSON.stringify(resultDoc(), null, 2), e.currentTarget as HTMLButtonElement),
+  );
+  $('#copy-tweet').addEventListener('click', (e) =>
+    copy($<HTMLTextAreaElement>('#tweet').value, e.currentTarget as HTMLButtonElement),
+  );
 
   // automation hook: ?autorun=1&reps=N runs the default suite on load; every
   // finished run is exposed as window.__provebench
   const q = new URLSearchParams(location.search);
   if (q.get('reps')) {
     reps = Number(q.get('reps'));
-    document.querySelectorAll('#reps button').forEach((x) => x.setAttribute('aria-pressed', String((x as HTMLElement).dataset.r === q.get('reps'))));
+    document
+      .querySelectorAll('#reps button')
+      .forEach((x) => x.setAttribute('aria-pressed', String((x as HTMLElement).dataset.r === q.get('reps'))));
   }
   if (q.get('autorun') === '1') await run();
 }

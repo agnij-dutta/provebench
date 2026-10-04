@@ -36,4 +36,6 @@ for (const kind of ['native', 'browser']) {
   }
 }
 writeFileSync(join(out, 'manifest.json'), JSON.stringify(manifest));
-console.log(`synced ${Object.keys(manifest.files).length} files, ${manifest.reference.native.length} native + ${manifest.reference.browser.length} browser reference runs`);
+console.log(
+  `synced ${Object.keys(manifest.files).length} files, ${manifest.reference.native.length} native + ${manifest.reference.browser.length} browser reference runs`,
+);

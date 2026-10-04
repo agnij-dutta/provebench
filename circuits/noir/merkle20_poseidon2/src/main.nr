@@ -9,7 +9,11 @@ fn main(leaf: Field, index: Field, siblings: [Field; DEPTH]) -> pub Field {
     let mut cur = leaf;
     for i in 0..DEPTH {
         let s = siblings[i];
-        cur = if bits[i] == 1 { Poseidon2::hash([s, cur], 2) } else { Poseidon2::hash([cur, s], 2) };
+        cur = if bits[i] == 1 {
+            Poseidon2::hash([s, cur], 2)
+        } else {
+            Poseidon2::hash([cur, s], 2)
+        };
     }
     cur
 }
