@@ -7,3 +7,8 @@ web/public/data/
 .DS_Store
 # ~290 MB, regenerate with: bash scripts/build-circom.sh sha256_1k
 artifacts/circom/sha256_1k.zkey
+.env
+.env.*
+*.pem
+*.key
+results/zz-*

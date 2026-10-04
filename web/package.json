@@ -1,7 +1,14 @@
 {
   "name": "provebench-web",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
+  "description": "ProveBench browser suite: run the ZK proving benchmark on your own device.",
+  "license": "MIT",
+  "author": "Agnij Dutta (https://x.com/0xholmesdev)",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "sync": "node scripts/sync-artifacts.mjs",
     "dev": "npm run sync && vite",

@@ -1,9 +1,35 @@
 {
   "name": "provebench",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "Open benchmark: how fast is ZK proving, really, on a laptop, in a browser, and on your phone?",
+  "keywords": [
+    "zk",
+    "zero-knowledge",
+    "benchmark",
+    "noir",
+    "ultrahonk",
+    "barretenberg",
+    "circom",
+    "groth16",
+    "snarkjs",
+    "rapidsnark",
+    "webassembly"
+  ],
   "license": "MIT",
+  "author": "Agnij Dutta (https://x.com/0xholmesdev)",
+  "homepage": "https://github.com/agnij-dutta/provebench#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agnij-dutta/provebench.git"
+  },
+  "bugs": {
+    "url": "https://github.com/agnij-dutta/provebench/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "inputs": "node scripts/gen-inputs.mjs",
     "build:noir": "bash scripts/build-noir.sh",

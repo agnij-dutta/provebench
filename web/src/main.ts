@@ -21,7 +21,9 @@ interface NativeDoc {
   schema: string;
   generated_at: string;
   machine: { id: string; model: string; chip: string; memory_gb: number };
-  load_avg: { start: number[] };
+  reps: number;
+  cooldown_s?: number;
+  load_avg: { start: number[]; note?: string };
   results: NativeRow[];
 }
 export interface BrowserDoc {
@@ -544,7 +546,7 @@ function renderNative() {
     return;
   }
   $('#nat-sub').textContent =
-    `${n.machine.model}, ${n.machine.chip}, ${n.machine.memory_gb} GB. Measured ${n.generated_at.slice(0, 10)} with load average ${n.load_avg.start.join(' / ')}: this machine was running other work at the time, so treat these as real-world, not idle-lab, numbers.`;
+    `${n.machine.model}, ${n.machine.chip}, ${n.machine.memory_gb} GB. Measured ${n.generated_at.slice(0, 10)}, median of ${n.reps} reps${n.cooldown_s ? ` with a ${n.cooldown_s} s cooldown between cells` : ''}, load average ${n.load_avg.start.join(' / ')} at start. ${n.load_avg.note ?? 'No note on what else was running.'}`;
   const sysName: Record<string, [string, string]> = {
     'noir-ultrahonk': ['Noir / UltraHonk (bb)', 'noir'],
     'circom-rapidsnark': ['Circom / Groth16 (rapidsnark)', 'circom'],
