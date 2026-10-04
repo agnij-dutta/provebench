@@ -1,7 +1,7 @@
 {
   "schema": "provebench/native@1",
-  "generated_at": "2026-10-04T13:37:29.074Z",
-  "finished_at": "2026-10-04T13:43:04.924Z",
+  "generated_at": "2026-10-04T07:01:34.811Z",
+  "finished_at": "2026-10-04T07:05:24.159Z",
   "machine": {
     "id": "macbook-air-m4-16gb",
     "model": "MacBook Air",
@@ -13,8 +13,7 @@
     "memory_gb": 16,
     "os": "Darwin 27.0",
     "arch": "arm64",
-    "node": "v22.14.0",
-    "power": "Battery Power"
+    "node": "v22.14.0"
   },
   "toolchain": {
     "nargo": "1.0.0-beta.19",
@@ -25,19 +24,18 @@
     "rapidsnark": "macOS-arm64-v0.0.8 (iden3 prebuilt)"
   },
   "reps": 7,
-  "cooldown_s": 15,
   "load_avg": {
     "start": [
-      3.99,
-      5.69,
-      4.96
+      9.03,
+      13.72,
+      20.57
     ],
     "end": [
-      4.94,
-      6.43,
-      5.59
+      9.47,
+      11.69,
+      18.07
     ],
-    "note": "os.loadavg() 1/5/15 min; the per-cell load also counts the benchmark's own threads. Not an idle lab: a browser, a terminal and two coding-agent sessions were open (no other benchmark or build). Machine on battery. See 'Host busy before' for what other processes used."
+    "note": "os.loadavg() 1/5/15 min. This machine routinely runs other workloads (parallel dev sessions) during benchmarks; numbers are real-world, not an idle lab."
   },
   "methodology": {
     "timing": "median and p90 over N reps after 1 warmup",
@@ -53,1058 +51,1043 @@
       "workload_label": "Poseidon hash chain (N=100)",
       "variant": false,
       "system": "noir-ultrahonk",
-      "load_avg_1m_before": 3.99,
-      "host_busy_pct_before": 18.9,
+      "load_avg_1m_before": 9.03,
       "size": {
         "kind": "ultrahonk_gates",
         "value": 92256,
         "acir_opcodes": 31201
       },
       "witness_ms": {
-        "median": 211,
-        "p90": 340.4,
-        "min": 208.52,
-        "max": 340.4,
+        "median": 474.72,
+        "p90": 478.75,
+        "min": 425.22,
+        "max": 478.75,
         "n": 7,
         "samples": [
-          340.4,
-          210.04,
-          210.25,
-          213.61,
-          213.44,
-          211,
-          208.52
+          478.75,
+          474.72,
+          474.79,
+          475,
+          436.12,
+          425.22,
+          429.88
         ]
       },
       "prove_ms": {
-        "median": 931.66,
-        "p90": 1053.55,
-        "min": 863.91,
-        "max": 1053.55,
+        "median": 2002.95,
+        "p90": 2054.42,
+        "min": 1899.21,
+        "max": 2054.42,
         "n": 7,
         "samples": [
-          919.26,
-          863.91,
-          904.7,
-          931.66,
-          1038.66,
-          1053.55,
-          1019.05
+          2015.69,
+          2010.61,
+          1982.08,
+          2054.42,
+          2002.95,
+          1991.69,
+          1899.21
         ]
       },
       "verify_ms": {
-        "median": 20.15,
-        "p90": 21.16,
-        "min": 19.75,
-        "max": 21.16,
+        "median": 41.76,
+        "p90": 43.18,
+        "min": 41.27,
+        "max": 43.18,
         "n": 7,
         "samples": [
-          21.16,
-          20.47,
-          20.15,
-          19.75,
-          19.79,
-          19.8,
-          20.25
+          43.18,
+          41.96,
+          41.76,
+          41.53,
+          41.27,
+          41.46,
+          42.68
         ]
       },
       "proof_bytes": 16256,
       "peak_rss_mb": {
-        "witness": 296,
-        "prove": 338,
+        "witness": 291,
+        "prove": 336,
         "verify": 12
       },
       "verified": true,
       "notes": "bb CLI wall time incl. process start + CRS load; default verifier target (ZK, Poseidon2 transcript).",
-      "e2e_ms_median": 1142.66
+      "e2e_ms_median": 2477.67
     },
     {
       "workload": "poseidon_chain",
       "workload_label": "Poseidon hash chain (N=100)",
       "variant": false,
       "system": "circom-rapidsnark",
-      "load_avg_1m_before": 5.07,
-      "host_busy_pct_before": 18.9,
+      "load_avg_1m_before": 10.73,
       "size": {
         "kind": "r1cs_constraints",
         "value": 23700,
         "wires": 23702
       },
       "witness_ms": {
-        "median": 22.93,
-        "p90": 185.85,
-        "min": 22.38,
-        "max": 185.85,
+        "median": 45.14,
+        "p90": 316.47,
+        "min": 43.59,
+        "max": 316.47,
         "n": 7,
         "samples": [
-          22.91,
-          22.93,
-          23.33,
-          185.85,
-          24.07,
-          22.38,
-          22.39
+          44.08,
+          45.03,
+          48.58,
+          316.47,
+          45.14,
+          45.21,
+          43.59
         ]
       },
       "prove_ms": {
-        "median": 118.63,
-        "p90": 123.11,
-        "min": 115.91,
-        "max": 123.11,
+        "median": 296.13,
+        "p90": 312.97,
+        "min": 259.95,
+        "max": 312.97,
         "n": 7,
         "samples": [
-          123.11,
-          119.51,
-          117.84,
-          120.03,
-          118.63,
-          116.14,
-          115.91
+          259.95,
+          281.64,
+          287.79,
+          296.13,
+          306,
+          312.97,
+          298.59
         ]
       },
       "verify_ms": {
-        "median": 4.62,
-        "p90": 5.19,
-        "min": 4.33,
-        "max": 5.19,
+        "median": 11.52,
+        "p90": 12.1,
+        "min": 9.82,
+        "max": 12.1,
         "n": 7,
         "samples": [
-          4.87,
-          4.65,
-          5.19,
-          4.51,
-          4.48,
-          4.62,
-          4.33
+          12.1,
+          11.52,
+          11.79,
+          11.54,
+          11.11,
+          10.59,
+          9.82
         ]
       },
       "proof_bytes": 256,
-      "proof_json_bytes": 707,
+      "proof_json_bytes": 704,
       "peak_rss_mb": {
-        "witness": 273,
-        "prove": 29,
+        "witness": 274,
+        "prove": 31,
         "verify": 2
       },
       "verified": true,
       "notes": "rapidsnark CLI wall time incl. process start + zkey load. Proof size = 256 B (A, B, C as uncompressed BN254 points).",
-      "e2e_ms_median": 141.56
+      "e2e_ms_median": 341.27
     },
     {
       "workload": "poseidon_chain",
       "workload_label": "Poseidon hash chain (N=100)",
       "variant": false,
       "system": "circom-snarkjs",
-      "load_avg_1m_before": 4.71,
-      "host_busy_pct_before": 17.2,
+      "load_avg_1m_before": 10.27,
       "size": {
         "kind": "r1cs_constraints",
         "value": 23700,
         "wires": 23702
       },
       "witness_ms": {
-        "median": 22.66,
-        "p90": 177.81,
-        "min": 21.98,
-        "max": 177.81,
+        "median": 52.09,
+        "p90": 355.97,
+        "min": 49.07,
+        "max": 355.97,
         "n": 7,
         "samples": [
-          22.35,
-          22.18,
-          22.66,
-          177.81,
-          23.2,
-          21.98,
-          22.97
+          50.91,
+          50.83,
+          52.09,
+          355.97,
+          52.38,
+          49.07,
+          54.05
         ]
       },
       "prove_ms": {
-        "median": 831.08,
-        "p90": 861.63,
-        "min": 816.01,
-        "max": 861.63,
+        "median": 1963.38,
+        "p90": 2018.75,
+        "min": 1945.94,
+        "max": 2018.75,
         "n": 7,
         "samples": [
-          837.6,
-          816.01,
-          836.16,
-          828.39,
-          826.14,
-          831.08,
-          861.63
+          1956.39,
+          1945.94,
+          2018.75,
+          1982.66,
+          1963.38,
+          1957.28,
+          1973.1
         ]
       },
       "verify_ms": {
-        "median": 6.13,
-        "p90": 8.63,
-        "min": 6.01,
-        "max": 8.63,
+        "median": 12.73,
+        "p90": 14.32,
+        "min": 12.58,
+        "max": 14.32,
         "n": 7,
         "samples": [
-          6.21,
-          6.11,
-          6.01,
-          6.1,
-          8.63,
-          6.3,
-          6.13
+          14.07,
+          12.58,
+          12.59,
+          12.76,
+          12.66,
+          12.73,
+          14.32
         ]
       },
       "proof_bytes": 256,
-      "proof_json_bytes": 721,
+      "proof_json_bytes": 723,
       "peak_rss_mb": {
-        "witness": 273,
-        "prove": 875,
+        "witness": 275,
+        "prove": 851,
         "verify": null
       },
       "verified": true,
       "notes": "snarkjs in-process after warmup (zkey re-read from disk each prove). Peak RSS covers the whole worker (prove + verify).",
-      "e2e_ms_median": 853.74
+      "e2e_ms_median": 2015.47
     },
     {
       "workload": "merkle20",
       "workload_label": "Merkle membership, depth 20 (Poseidon)",
       "variant": false,
       "system": "noir-ultrahonk",
-      "load_avg_1m_before": 6.88,
-      "host_busy_pct_before": 21.5,
+      "load_avg_1m_before": 10.73,
       "size": {
         "kind": "ultrahonk_gates",
         "value": 37262,
         "acir_opcodes": 12801
       },
       "witness_ms": {
-        "median": 87.2,
-        "p90": 91.16,
-        "min": 86.02,
-        "max": 91.16,
+        "median": 196.12,
+        "p90": 222.25,
+        "min": 189.89,
+        "max": 222.25,
         "n": 7,
         "samples": [
-          91.16,
-          87.75,
-          86.95,
-          87.2,
-          86.02,
-          87.79,
-          87.1
+          222.25,
+          216.57,
+          196.12,
+          198.56,
+          189.89,
+          191.2,
+          192.1
         ]
       },
       "prove_ms": {
-        "median": 459.61,
-        "p90": 479.47,
-        "min": 446.26,
-        "max": 479.47,
+        "median": 1018.88,
+        "p90": 1038.58,
+        "min": 1003.25,
+        "max": 1038.58,
         "n": 7,
         "samples": [
-          471.26,
-          459.61,
-          460.93,
-          446.26,
-          455.44,
-          479.47,
-          459.36
+          1038.58,
+          1020.08,
+          1012.16,
+          1006.89,
+          1003.25,
+          1037.41,
+          1018.88
         ]
       },
       "verify_ms": {
-        "median": 18.38,
-        "p90": 19.22,
-        "min": 18.28,
-        "max": 19.22,
+        "median": 43.13,
+        "p90": 43.69,
+        "min": 42.34,
+        "max": 43.69,
         "n": 7,
         "samples": [
-          18.38,
-          19.22,
-          18.97,
-          18.32,
-          18.28,
-          18.36,
-          18.59
+          42.57,
+          42.34,
+          43.52,
+          43.41,
+          43.13,
+          43.69,
+          42.87
         ]
       },
       "proof_bytes": 16256,
       "peak_rss_mb": {
-        "witness": 279,
-        "prove": 155,
+        "witness": 281,
+        "prove": 156,
         "verify": 12
       },
       "verified": true,
       "notes": "bb CLI wall time incl. process start + CRS load; default verifier target (ZK, Poseidon2 transcript).",
-      "e2e_ms_median": 546.81
+      "e2e_ms_median": 1215
     },
     {
       "workload": "merkle20",
       "workload_label": "Merkle membership, depth 20 (Poseidon)",
       "variant": false,
       "system": "circom-rapidsnark",
-      "load_avg_1m_before": 5.65,
-      "host_busy_pct_before": 23.9,
+      "load_avg_1m_before": 10.94,
       "size": {
         "kind": "r1cs_constraints",
         "value": 4840,
         "wires": 4862
       },
       "witness_ms": {
-        "median": 8.14,
-        "p90": 12.51,
-        "min": 7.54,
-        "max": 12.51,
+        "median": 18.1,
+        "p90": 23.1,
+        "min": 16.12,
+        "max": 23.1,
         "n": 7,
         "samples": [
-          12.51,
-          8.7,
-          8.53,
-          7.99,
-          7.89,
-          8.14,
-          7.54
+          23.1,
+          18.29,
+          18.1,
+          16.12,
+          18.2,
+          16.91,
+          16.42
         ]
       },
       "prove_ms": {
-        "median": 34.23,
-        "p90": 35.87,
-        "min": 33.93,
-        "max": 35.87,
+        "median": 75.27,
+        "p90": 76.1,
+        "min": 68.78,
+        "max": 76.1,
         "n": 7,
         "samples": [
-          34.16,
-          34.98,
-          35.87,
-          34.6,
-          34.23,
-          34.22,
-          33.93
+          69.23,
+          68.78,
+          70.24,
+          75.38,
+          75.27,
+          76.1,
+          75.34
         ]
       },
       "verify_ms": {
-        "median": 4.37,
-        "p90": 4.45,
-        "min": 4.19,
-        "max": 4.45,
+        "median": 9.71,
+        "p90": 10.11,
+        "min": 9.34,
+        "max": 10.11,
         "n": 7,
         "samples": [
-          4.37,
-          4.45,
-          4.19,
-          4.43,
-          4.21,
-          4.23,
-          4.43
+          9.99,
+          9.71,
+          9.84,
+          10.11,
+          9.34,
+          9.55,
+          9.64
         ]
       },
       "proof_bytes": 256,
-      "proof_json_bytes": 710,
+      "proof_json_bytes": 705,
       "peak_rss_mb": {
-        "witness": 87,
+        "witness": 89,
         "prove": 8,
         "verify": 2
       },
       "verified": true,
       "notes": "rapidsnark CLI wall time incl. process start + zkey load. Proof size = 256 B (A, B, C as uncompressed BN254 points).",
-      "e2e_ms_median": 42.37
+      "e2e_ms_median": 93.37
     },
     {
       "workload": "merkle20",
       "workload_label": "Merkle membership, depth 20 (Poseidon)",
       "variant": false,
       "system": "circom-snarkjs",
-      "load_avg_1m_before": 4.68,
-      "host_busy_pct_before": 15.5,
+      "load_avg_1m_before": 10.94,
       "size": {
         "kind": "r1cs_constraints",
         "value": 4840,
         "wires": 4862
       },
       "witness_ms": {
-        "median": 8.03,
-        "p90": 11.4,
-        "min": 7.16,
-        "max": 11.4,
+        "median": 19.01,
+        "p90": 25.36,
+        "min": 16.64,
+        "max": 25.36,
         "n": 7,
         "samples": [
-          11.4,
-          8.38,
-          8.03,
-          7.91,
-          8,
-          8.05,
-          7.16
+          25.36,
+          19.01,
+          18.36,
+          18.5,
+          19.67,
+          19.01,
+          16.64
         ]
       },
       "prove_ms": {
-        "median": 234.84,
-        "p90": 246.75,
-        "min": 221.28,
-        "max": 246.75,
+        "median": 514.74,
+        "p90": 530.13,
+        "min": 501.45,
+        "max": 530.13,
         "n": 7,
         "samples": [
-          233.37,
-          239.07,
-          223.33,
-          234.84,
-          246.75,
-          237.25,
-          221.28
+          530.13,
+          515.59,
+          517.28,
+          501.45,
+          508.31,
+          507.07,
+          514.74
         ]
       },
       "verify_ms": {
-        "median": 5.22,
-        "p90": 6.62,
-        "min": 5.03,
-        "max": 6.62,
+        "median": 12.58,
+        "p90": 14.01,
+        "min": 12.34,
+        "max": 14.01,
         "n": 7,
         "samples": [
-          5.22,
-          5.17,
-          5.05,
-          6.15,
-          5.03,
-          6.62,
-          5.41
+          13.07,
+          12.57,
+          12.38,
+          12.76,
+          12.34,
+          12.58,
+          14.01
         ]
       },
       "proof_bytes": 256,
-      "proof_json_bytes": 725,
+      "proof_json_bytes": 723,
       "peak_rss_mb": {
-        "witness": 87,
-        "prove": 535,
+        "witness": 88,
+        "prove": 560,
         "verify": null
       },
       "verified": true,
       "notes": "snarkjs in-process after warmup (zkey re-read from disk each prove). Peak RSS covers the whole worker (prove + verify).",
-      "e2e_ms_median": 242.87
+      "e2e_ms_median": 533.75
     },
     {
       "workload": "sha256_1k",
       "workload_label": "SHA-256 of 1 KiB",
       "variant": false,
       "system": "noir-ultrahonk",
-      "load_avg_1m_before": 4.23,
-      "host_busy_pct_before": 30.5,
+      "load_avg_1m_before": 11.35,
       "size": {
         "kind": "ultrahonk_gates",
         "value": 72215,
         "acir_opcodes": 1692
       },
       "witness_ms": {
-        "median": 24.42,
-        "p90": 33.16,
-        "min": 22.51,
-        "max": 33.16,
+        "median": 65.87,
+        "p90": 69.94,
+        "min": 59.24,
+        "max": 69.94,
         "n": 7,
         "samples": [
-          33.16,
-          29.42,
-          24.44,
-          24.42,
-          24.34,
-          22.51,
-          22.89
+          69.94,
+          67.16,
+          67.32,
+          65.87,
+          64.4,
+          59.79,
+          59.24
         ]
       },
       "prove_ms": {
-        "median": 686.38,
-        "p90": 696.83,
-        "min": 677.52,
-        "max": 696.83,
+        "median": 1541.32,
+        "p90": 1608.71,
+        "min": 1501.09,
+        "max": 1608.71,
         "n": 7,
         "samples": [
-          686.38,
-          696.83,
-          688.93,
-          695.78,
-          679.24,
-          677.52,
-          685.05
+          1551.1,
+          1541.32,
+          1545.19,
+          1523.79,
+          1608.71,
+          1506.38,
+          1501.09
         ]
       },
       "verify_ms": {
-        "median": 19.45,
-        "p90": 19.93,
-        "min": 19.09,
-        "max": 19.93,
+        "median": 42.56,
+        "p90": 43.07,
+        "min": 42.25,
+        "max": 43.07,
         "n": 7,
         "samples": [
-          19.46,
-          19.93,
-          19.09,
-          19.35,
-          19.51,
-          19.45,
-          19.19
+          42.38,
+          42.25,
+          43.03,
+          42.85,
+          42.56,
+          43.07,
+          42.42
         ]
       },
       "proof_bytes": 16256,
       "peak_rss_mb": {
-        "witness": 353,
-        "prove": 241,
+        "witness": 355,
+        "prove": 243,
         "verify": 12
       },
       "verified": true,
       "notes": "bb CLI wall time incl. process start + CRS load; default verifier target (ZK, Poseidon2 transcript).",
-      "e2e_ms_median": 710.8
+      "e2e_ms_median": 1607.19
     },
     {
       "workload": "sha256_1k",
       "workload_label": "SHA-256 of 1 KiB",
       "variant": false,
       "system": "circom-rapidsnark",
-      "load_avg_1m_before": 5.12,
-      "host_busy_pct_before": 13.3,
+      "load_avg_1m_before": 10.94,
       "size": {
         "kind": "r1cs_constraints",
         "value": 522393,
         "wires": 517090
       },
       "witness_ms": {
-        "median": 759.67,
-        "p90": 771.51,
-        "min": 717.64,
-        "max": 771.51,
+        "median": 1471.47,
+        "p90": 1498.05,
+        "min": 1439.98,
+        "max": 1498.05,
         "n": 7,
         "samples": [
-          735.5,
-          761.21,
-          717.64,
-          721,
-          761.24,
-          771.51,
-          759.67
+          1442.82,
+          1471.47,
+          1439.98,
+          1494.6,
+          1492.22,
+          1498.05,
+          1462.59
         ]
       },
       "prove_ms": {
-        "median": 572.98,
-        "p90": 584.84,
-        "min": 550.29,
-        "max": 584.84,
+        "median": 1462.23,
+        "p90": 1623.83,
+        "min": 1399.35,
+        "max": 1623.83,
         "n": 7,
         "samples": [
-          572.98,
-          576.06,
-          584.84,
-          550.29,
-          553.96,
-          567.76,
-          583.63
+          1623.83,
+          1466.24,
+          1462.23,
+          1399.35,
+          1425.07,
+          1451.03,
+          1481.43
         ]
       },
       "verify_ms": {
-        "median": 4.54,
-        "p90": 4.82,
-        "min": 4.45,
-        "max": 4.82,
+        "median": 11.65,
+        "p90": 12.01,
+        "min": 9.78,
+        "max": 12.01,
         "n": 7,
         "samples": [
-          4.73,
-          4.57,
-          4.51,
-          4.54,
-          4.45,
-          4.82,
-          4.51
+          11.93,
+          11.49,
+          11.37,
+          12.01,
+          11.87,
+          11.65,
+          9.78
         ]
       },
       "proof_bytes": 256,
-      "proof_json_bytes": 710,
+      "proof_json_bytes": 705,
       "peak_rss_mb": {
-        "witness": 416,
+        "witness": 430,
         "prove": 545,
         "verify": 2
       },
       "verified": true,
       "notes": "rapidsnark CLI wall time incl. process start + zkey load. Proof size = 256 B (A, B, C as uncompressed BN254 points).",
-      "e2e_ms_median": 1332.65
+      "e2e_ms_median": 2933.7
     },
     {
       "workload": "sha256_1k",
       "workload_label": "SHA-256 of 1 KiB",
       "variant": false,
       "system": "circom-snarkjs",
-      "load_avg_1m_before": 5.31,
-      "host_busy_pct_before": 27.3,
+      "load_avg_1m_before": 9.91,
       "size": {
         "kind": "r1cs_constraints",
         "value": 522393,
         "wires": 517090
       },
       "witness_ms": {
-        "median": 755.6,
-        "p90": 772.92,
-        "min": 718.23,
-        "max": 772.92,
+        "median": 1506.34,
+        "p90": 1547.03,
+        "min": 1393.19,
+        "max": 1547.03,
         "n": 7,
         "samples": [
-          750.89,
-          730.52,
-          718.23,
-          755.6,
-          772.92,
-          765.15,
-          768.85
+          1393.19,
+          1411.53,
+          1414.04,
+          1506.34,
+          1512.78,
+          1547.03,
+          1523.27
         ]
       },
       "prove_ms": {
-        "median": 6301.7,
-        "p90": 6890.5,
-        "min": 5878.26,
-        "max": 6890.5,
+        "median": 12531.88,
+        "p90": 12737.93,
+        "min": 12381.97,
+        "max": 12737.93,
         "n": 7,
         "samples": [
-          5878.26,
-          6112.57,
-          6301.7,
-          6420.98,
-          6890.5,
-          5881.79,
-          6397.37
+          12506.42,
+          12531.88,
+          12737.93,
+          12518.56,
+          12381.97,
+          12572.89,
+          12568.15
         ]
       },
       "verify_ms": {
-        "median": 4.04,
-        "p90": 4.81,
-        "min": 3.74,
-        "max": 4.81,
+        "median": 10.2,
+        "p90": 10.88,
+        "min": 9.64,
+        "max": 10.88,
         "n": 7,
         "samples": [
-          4.03,
-          4.17,
-          3.87,
-          4.04,
-          4.81,
-          4.35,
-          3.74
+          10.17,
+          10.09,
+          10.2,
+          10.65,
+          10.88,
+          10.27,
+          9.64
         ]
       },
       "proof_bytes": 256,
-      "proof_json_bytes": 723,
+      "proof_json_bytes": 721,
       "peak_rss_mb": {
-        "witness": 431,
-        "prove": 4564,
+        "witness": 430,
+        "prove": 6062,
         "verify": null
       },
       "verified": true,
       "notes": "snarkjs in-process after warmup (zkey re-read from disk each prove). Peak RSS covers the whole worker (prove + verify).",
-      "e2e_ms_median": 7057.3
+      "e2e_ms_median": 14038.22
     },
     {
       "workload": "ecdsa_secp256k1",
       "workload_label": "ECDSA secp256k1 verify",
       "variant": false,
       "system": "noir-ultrahonk",
-      "load_avg_1m_before": 11.41,
-      "host_busy_pct_before": 26.3,
+      "load_avg_1m_before": 10.7,
       "size": {
         "kind": "ultrahonk_gates",
         "value": 42180,
         "acir_opcodes": 162
       },
       "witness_ms": {
-        "median": 2.38,
-        "p90": 5.79,
-        "min": 2.22,
-        "max": 5.79,
+        "median": 5.26,
+        "p90": 6.12,
+        "min": 4.99,
+        "max": 6.12,
         "n": 7,
         "samples": [
-          2.38,
-          2.22,
-          2.31,
-          2.27,
-          5.03,
-          5.79,
-          3.11
+          5.26,
+          5.29,
+          5.8,
+          5.16,
+          5.12,
+          6.12,
+          4.99
         ]
       },
       "prove_ms": {
-        "median": 396.12,
-        "p90": 690.23,
-        "min": 382.09,
-        "max": 690.23,
+        "median": 861.7,
+        "p90": 903.26,
+        "min": 855.84,
+        "max": 903.26,
         "n": 7,
         "samples": [
-          388.5,
-          396.12,
-          389.12,
-          382.09,
-          421.95,
-          690.23,
-          519.37
+          861.7,
+          877.72,
+          892.44,
+          857.57,
+          903.26,
+          856.18,
+          855.84
         ]
       },
       "verify_ms": {
-        "median": 19.42,
-        "p90": 19.91,
-        "min": 18.51,
-        "max": 19.91,
+        "median": 42.82,
+        "p90": 43.62,
+        "min": 42.25,
+        "max": 43.62,
         "n": 7,
         "samples": [
-          19.42,
-          19.91,
-          19.12,
-          18.53,
-          18.51,
-          19.42,
-          19.63
+          42.98,
+          42.82,
+          42.61,
+          43.13,
+          42.25,
+          42.52,
+          43.62
         ]
       },
       "proof_bytes": 16256,
       "peak_rss_mb": {
-        "witness": 162,
-        "prove": 120,
+        "witness": 160,
+        "prove": 111,
         "verify": 12
       },
       "verified": true,
       "notes": "bb CLI wall time incl. process start + CRS load; default verifier target (ZK, Poseidon2 transcript).",
-      "e2e_ms_median": 398.5
+      "e2e_ms_median": 866.96
     },
     {
       "workload": "cap_check",
       "workload_label": "Spend cap check (16 payments, u64)",
       "variant": false,
       "system": "noir-ultrahonk",
-      "load_avg_1m_before": 10.16,
-      "host_busy_pct_before": 21.3,
+      "load_avg_1m_before": 10.64,
       "size": {
         "kind": "ultrahonk_gates",
         "value": 3128,
         "acir_opcodes": 176
       },
       "witness_ms": {
-        "median": 1.34,
-        "p90": 1.58,
-        "min": 1.29,
-        "max": 1.58,
+        "median": 3.25,
+        "p90": 3.41,
+        "min": 3.12,
+        "max": 3.41,
         "n": 7,
         "samples": [
-          1.58,
-          1.43,
-          1.35,
-          1.34,
-          1.31,
-          1.3,
-          1.29
+          3.12,
+          3.32,
+          3.18,
+          3.3,
+          3.24,
+          3.25,
+          3.41
         ]
       },
       "prove_ms": {
-        "median": 81.83,
-        "p90": 82.19,
-        "min": 80.71,
-        "max": 82.19,
+        "median": 181.26,
+        "p90": 184.19,
+        "min": 174.27,
+        "max": 184.19,
         "n": 7,
         "samples": [
-          80.71,
-          81.99,
-          81.04,
-          81.35,
-          81.83,
-          81.9,
-          82.19
+          184.19,
+          177.56,
+          181.26,
+          180.29,
+          181.4,
+          174.27,
+          183.7
         ]
       },
       "verify_ms": {
-        "median": 18.81,
-        "p90": 20.28,
-        "min": 18.39,
-        "max": 20.28,
+        "median": 37.3,
+        "p90": 38.99,
+        "min": 36.65,
+        "max": 38.99,
         "n": 7,
         "samples": [
-          18.91,
-          19,
-          18.46,
-          18.62,
-          20.28,
-          18.81,
-          18.39
+          37.3,
+          37.73,
+          37.19,
+          36.95,
+          38.37,
+          38.99,
+          36.65
         ]
       },
       "proof_bytes": 16256,
       "peak_rss_mb": {
-        "witness": 155,
+        "witness": 174,
         "prove": 20,
         "verify": 12
       },
       "verified": true,
       "notes": "bb CLI wall time incl. process start + CRS load; default verifier target (ZK, Poseidon2 transcript).",
-      "e2e_ms_median": 83.17
+      "e2e_ms_median": 184.51
     },
     {
       "workload": "cap_check",
       "workload_label": "Spend cap check (16 payments, u64)",
       "variant": false,
       "system": "circom-rapidsnark",
-      "load_avg_1m_before": 8.27,
-      "host_busy_pct_before": 20.6,
+      "load_avg_1m_before": 10.19,
       "size": {
         "kind": "r1cs_constraints",
         "value": 4224,
         "wires": 4177
       },
       "witness_ms": {
-        "median": 5.59,
-        "p90": 6.26,
-        "min": 5.5,
-        "max": 6.26,
+        "median": 12.95,
+        "p90": 13.11,
+        "min": 11.63,
+        "max": 13.11,
         "n": 7,
         "samples": [
-          6.26,
-          5.9,
-          5.59,
-          5.51,
-          5.74,
-          5.52,
-          5.5
+          13.08,
+          11.73,
+          12.94,
+          12.95,
+          13.11,
+          13.02,
+          11.63
         ]
       },
       "prove_ms": {
-        "median": 17.02,
-        "p90": 17.54,
-        "min": 16.45,
-        "max": 17.54,
+        "median": 35.07,
+        "p90": 37.33,
+        "min": 34.78,
+        "max": 37.33,
         "n": 7,
         "samples": [
-          16.53,
-          16.67,
-          17.02,
-          17.22,
-          16.45,
-          17.54,
-          17.06
+          34.78,
+          34.87,
+          35.07,
+          34.79,
+          35.39,
+          36.06,
+          37.33
         ]
       },
       "verify_ms": {
-        "median": 4.19,
-        "p90": 4.48,
-        "min": 4.17,
-        "max": 4.48,
+        "median": 9.49,
+        "p90": 9.84,
+        "min": 9.23,
+        "max": 9.84,
         "n": 7,
         "samples": [
-          4.41,
-          4.19,
-          4.19,
-          4.48,
-          4.4,
-          4.17,
-          4.18
+          9.51,
+          9.83,
+          9.84,
+          9.41,
+          9.49,
+          9.31,
+          9.23
         ]
       },
       "proof_bytes": 256,
-      "proof_json_bytes": 710,
+      "proof_json_bytes": 705,
       "peak_rss_mb": {
         "witness": 70,
-        "prove": 8,
+        "prove": 9,
         "verify": 2
       },
       "verified": true,
       "notes": "rapidsnark CLI wall time incl. process start + zkey load. Proof size = 256 B (A, B, C as uncompressed BN254 points).",
-      "e2e_ms_median": 22.61
+      "e2e_ms_median": 48.02
     },
     {
       "workload": "cap_check",
       "workload_label": "Spend cap check (16 payments, u64)",
       "variant": false,
       "system": "circom-snarkjs",
-      "load_avg_1m_before": 6.6,
-      "host_busy_pct_before": 24,
+      "load_avg_1m_before": 10.19,
       "size": {
         "kind": "r1cs_constraints",
         "value": 4224,
         "wires": 4177
       },
       "witness_ms": {
-        "median": 5.64,
-        "p90": 6.39,
-        "min": 5.43,
-        "max": 6.39,
+        "median": 13.51,
+        "p90": 13.67,
+        "min": 11.44,
+        "max": 13.67,
         "n": 7,
         "samples": [
-          6.39,
-          5.83,
-          5.64,
-          5.54,
-          5.71,
-          5.55,
-          5.43
+          13.51,
+          13.52,
+          13.16,
+          13.64,
+          13.67,
+          13.2,
+          11.44
         ]
       },
       "prove_ms": {
-        "median": 97.12,
-        "p90": 99.03,
-        "min": 95.55,
-        "max": 99.03,
+        "median": 226.64,
+        "p90": 248.83,
+        "min": 217.64,
+        "max": 248.83,
         "n": 7,
         "samples": [
-          97.62,
-          97.45,
-          96.69,
-          97.12,
-          99.03,
-          97.11,
-          95.55
+          226.64,
+          217.64,
+          225.07,
+          228.46,
+          226.77,
+          248.83,
+          221.1
         ]
       },
       "verify_ms": {
-        "median": 5.04,
-        "p90": 5.78,
-        "min": 4.92,
-        "max": 5.78,
+        "median": 12.65,
+        "p90": 12.78,
+        "min": 11.68,
+        "max": 12.78,
         "n": 7,
         "samples": [
-          5.01,
-          4.95,
-          5.06,
-          5.78,
-          5.63,
-          5.04,
-          4.92
+          12.65,
+          11.93,
+          12.73,
+          12.68,
+          11.68,
+          11.93,
+          12.78
         ]
       },
       "proof_bytes": 256,
       "proof_json_bytes": 722,
       "peak_rss_mb": {
-        "witness": 70,
-        "prove": 543,
+        "witness": 71,
+        "prove": 538,
         "verify": null
       },
       "verified": true,
       "notes": "snarkjs in-process after warmup (zkey re-read from disk each prove). Peak RSS covers the whole worker (prove + verify).",
-      "e2e_ms_median": 102.76
+      "e2e_ms_median": 240.15
     },
     {
       "workload": "poseidon2_chain",
       "workload_label": "Variant: Poseidon2 chain (N=100), Noir-native hash",
       "variant": true,
       "system": "noir-ultrahonk",
-      "load_avg_1m_before": 5.57,
-      "host_busy_pct_before": 21.7,
+      "load_avg_1m_before": 10.19,
       "size": {
         "kind": "ultrahonk_gates",
         "value": 7457,
         "acir_opcodes": 202
       },
       "witness_ms": {
-        "median": 4.31,
-        "p90": 6.75,
-        "min": 3.82,
-        "max": 6.75,
+        "median": 10.62,
+        "p90": 13.74,
+        "min": 9.79,
+        "max": 13.74,
         "n": 7,
         "samples": [
-          5.24,
-          4.31,
-          4.28,
-          6.75,
-          4.45,
-          3.95,
-          3.82
+          13.74,
+          10.41,
+          10.67,
+          11.15,
+          10.62,
+          10.49,
+          9.79
         ]
       },
       "prove_ms": {
-        "median": 127.57,
-        "p90": 146.43,
-        "min": 126.75,
-        "max": 146.43,
+        "median": 304.43,
+        "p90": 329.17,
+        "min": 294.9,
+        "max": 329.17,
         "n": 7,
         "samples": [
-          126.94,
-          126.75,
-          127.65,
-          127.43,
-          127.57,
-          127.66,
-          146.43
+          304.43,
+          329.17,
+          309.62,
+          304.77,
+          294.9,
+          297.68,
+          302.72
         ]
       },
       "verify_ms": {
-        "median": 19.21,
-        "p90": 19.75,
-        "min": 18.92,
-        "max": 19.75,
+        "median": 42.06,
+        "p90": 42.83,
+        "min": 41.53,
+        "max": 42.83,
         "n": 7,
         "samples": [
-          19.73,
-          19.37,
-          18.92,
-          19.75,
-          19.09,
-          19.21,
-          19.21
+          42.83,
+          42.54,
+          42.03,
+          41.72,
+          41.53,
+          42.06,
+          42.53
         ]
       },
       "proof_bytes": 16256,
       "peak_rss_mb": {
-        "witness": 166,
-        "prove": 26,
+        "witness": 168,
+        "prove": 27,
         "verify": 12
       },
       "verified": true,
       "notes": "bb CLI wall time incl. process start + CRS load; default verifier target (ZK, Poseidon2 transcript).",
-      "e2e_ms_median": 131.88
+      "e2e_ms_median": 315.05
     },
     {
       "workload": "merkle20_poseidon2",
       "workload_label": "Variant: Merkle depth 20 (Poseidon2), Noir-native hash",
       "variant": true,
       "system": "noir-ultrahonk",
-      "load_avg_1m_before": 5.2,
-      "host_busy_pct_before": 17.1,
+      "load_avg_1m_before": 9.85,
       "size": {
         "kind": "ultrahonk_gates",
         "value": 3044,
         "acir_opcodes": 84
       },
       "witness_ms": {
-        "median": 2.69,
-        "p90": 3.64,
-        "min": 2.07,
-        "max": 3.64,
+        "median": 5.62,
+        "p90": 6.51,
+        "min": 4.44,
+        "max": 6.51,
         "n": 7,
         "samples": [
-          2.97,
-          2.84,
-          2.35,
-          2.69,
-          2.09,
-          2.07,
-          3.64
+          6.51,
+          6.17,
+          5.44,
+          6.05,
+          5.17,
+          5.62,
+          4.44
         ]
       },
       "prove_ms": {
-        "median": 92.75,
-        "p90": 93.28,
-        "min": 91.3,
-        "max": 93.28,
+        "median": 229.87,
+        "p90": 239.45,
+        "min": 215.7,
+        "max": 239.45,
         "n": 7,
         "samples": [
-          92.58,
-          93.28,
-          92.8,
-          92.88,
-          92.35,
-          92.75,
-          91.3
+          215.7,
+          231.02,
+          224.94,
+          229.36,
+          233.47,
+          229.87,
+          239.45
         ]
       },
       "verify_ms": {
-        "median": 18.02,
-        "p90": 18.25,
-        "min": 17.94,
-        "max": 18.25,
+        "median": 42.55,
+        "p90": 43.82,
+        "min": 41.85,
+        "max": 43.82,
         "n": 7,
         "samples": [
-          18.11,
-          18.02,
-          17.95,
-          18.25,
-          18.06,
-          17.94,
-          17.98
+          42.93,
+          43.82,
+          42.72,
+          42.55,
+          41.92,
+          41.85,
+          42.22
         ]
       },
       "proof_bytes": 16256,
       "peak_rss_mb": {
-        "witness": 205,
+        "witness": 207,
         "prove": 20,
         "verify": 12
       },
       "verified": true,
       "notes": "bb CLI wall time incl. process start + CRS load; default verifier target (ZK, Poseidon2 transcript).",
-      "e2e_ms_median": 95.44
+      "e2e_ms_median": 235.49
     }
   ]
 }

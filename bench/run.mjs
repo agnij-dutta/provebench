@@ -2,6 +2,7 @@
 // ProveBench native runner.
 //
 //   node bench/run.mjs [--reps 5] [--workloads a,b] [--systems x,y] [--machine id]
+//                      [--merge] [--note "conditions"] [--cooldown seconds]
 //
 // Runs every workload x system, N timed repetitions each (after one warmup),
 // and writes results/<machine>.json and results/<machine>.md.
@@ -82,6 +83,18 @@ function node(script, argv) {
   return JSON.parse(p.stdout.trim().split('\n').pop());
 }
 const load = () => os.loadavg().map((x) => Math.round(x * 100) / 100);
+const sleep = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+// os.loadavg() counts the benchmark's own threads (bb and rapidsnark use every
+// core), so it cannot tell you what else was running. Instead, sample how busy
+// the host is over one second while the benchmark itself is idle.
+function hostBusyPct() {
+  const snap = () => os.cpus().reduce((a, c) => { const t = c.times; a.idle += t.idle; a.total += t.user + t.nice + t.sys + t.idle + t.irq; return a; }, { idle: 0, total: 0 });
+  const a = snap();
+  sleep(1000);
+  const b = snap();
+  return Math.round((1 - (b.idle - a.idle) / (b.total - a.total)) * 1000) / 10;
+}
+const COOLDOWN_S = Number(args.cooldown ?? 0);
 const log = (...a) => console.error('[provebench]', ...a);
 
 // ---------- machine ----------
@@ -104,6 +117,7 @@ function machine() {
     os: `${os.type()} ${sh('sw_vers -productVersion') ?? os.release()}`,
     arch: os.arch(),
     node: process.version,
+    power: sh('pmset -g batt')?.match(/'(.+?)'/)?.[1] ?? null,
   };
 }
 function toolchain() {
@@ -218,13 +232,15 @@ for (const w of workloads) {
       continue;
     }
     if (s === 'circom-rapidsnark' && !existsSync(RAPIDSNARK)) { log(`skip ${s}: run scripts/get-rapidsnark.sh`); continue; }
+    if (COOLDOWN_S > 0 && results.length) sleep(COOLDOWN_S * 1000);
     const l0 = load();
-    log(`${w.id} / ${s} ...`);
+    const busy = hostBusyPct();
+    log(`${w.id} / ${s} ... (host busy ${busy}% before cell)`);
     const t0 = performance.now();
     try {
       const r = s === 'noir-ultrahonk' ? runNoir(w) : s === 'circom-rapidsnark' ? runRapidsnark(w) : runSnarkjs(w);
       r.e2e_ms_median = Math.round((r.witness_ms.median + r.prove_ms.median) * 100) / 100;
-      results.push({ workload: w.id, workload_label: w.label, variant: !!w.variant, system: s, load_avg_1m_before: l0[0], ...r });
+      results.push({ workload: w.id, workload_label: w.label, variant: !!w.variant, system: s, load_avg_1m_before: l0[0], host_busy_pct_before: busy, ...r });
       log(`  witness ${r.witness_ms.median} ms, prove ${r.prove_ms.median} ms (p90 ${r.prove_ms.p90}), verify ${r.verify_ms.median} ms, proof ${r.proof_bytes} B  [${Math.round(performance.now() - t0)} ms]`);
     } catch (e) {
       log(`  FAILED: ${e.message.split('\n')[0]}`);
@@ -250,7 +266,9 @@ const doc = {
   machine: m,
   toolchain: toolchain(),
   reps: REPS,
-  load_avg: { start: loadStart, end: load(), note: 'os.loadavg() 1/5/15 min. This machine routinely runs other workloads (parallel dev sessions) during benchmarks; numbers are real-world, not an idle lab.' },
+  cooldown_s: COOLDOWN_S,
+  // The note must describe what else was running; it is printed with every table.
+  load_avg: { start: loadStart, end: load(), note: typeof args.note === 'string' ? args.note : 'os.loadavg() 1/5/15 min. No note on host conditions was given for this run.' },
   methodology: {
     timing: 'median and p90 over N reps after 1 warmup',
     witness: 'Noir: noir_js execute (WASM ACVM) in Node. Circom: snarkjs wtns.calculate (circom WASM) in Node.',
@@ -272,21 +290,22 @@ function toMarkdown(d) {
   const lines = [
     `# ProveBench native results: ${d.machine.model} (${d.machine.chip}, ${d.machine.memory_gb} GB)`,
     '',
-    `- Run: ${d.generated_at} to ${d.finished_at}, ${d.reps} reps per cell after 1 warmup`,
-    `- CPU: ${d.machine.cores_logical} cores (${d.machine.cores_performance}P + ${d.machine.cores_efficiency}E), ${d.machine.os}, Node ${d.machine.node}`,
+    `- Run: ${d.generated_at} to ${d.finished_at}, ${d.reps} reps per cell after 1 warmup${d.cooldown_s ? `, ${d.cooldown_s} s cooldown between cells` : ''}`,
+    `- CPU: ${d.machine.cores_logical} cores (${d.machine.cores_performance}P + ${d.machine.cores_efficiency}E), ${d.machine.os}, Node ${d.machine.node}${d.machine.power ? `, ${d.machine.power}` : ''}`,
     `- Toolchain: nargo ${d.toolchain.nargo}, bb ${d.toolchain.bb}, circom ${d.toolchain.circom}, snarkjs ${d.toolchain.snarkjs}, rapidsnark ${d.toolchain.rapidsnark ?? 'n/a'}`,
     `- Load average at start: ${d.load_avg.start.join(' / ')}, at end: ${d.load_avg.end.join(' / ')} (1/5/15 min)`,
-    `- **Caveat:** ${d.load_avg.note}`,
+    `- Host conditions: ${d.load_avg.note}`,
     '',
-    '| Workload | System | Size | Witness (med) | Prove (med) | Prove (p90) | Verify (med) | Proof | Peak RSS (prove) | Load 1m |',
-    '|---|---|---|---:|---:|---:|---:|---:|---:|---:|',
+    '| Workload | System | Size | Witness (med) | Prove (med) | Prove (p90) | Verify (med) | Proof | Peak RSS (prove) | Host busy before | Load 1m |',
+    '|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|',
   ];
   for (const r of d.results) {
-    if (r.error) { lines.push(`| ${r.workload} | ${r.system} | | | FAILED | | | | | |`); continue; }
-    lines.push(`| ${r.workload} | ${r.system} | ${sz(r)} | ${fmt(r.witness_ms.median)} | **${fmt(r.prove_ms.median)}** | ${fmt(r.prove_ms.p90)} | ${fmt(r.verify_ms.median)} | ${r.proof_bytes.toLocaleString('en-US')} B | ${r.peak_rss_mb.prove} MB | ${r.load_avg_1m_before} |`);
+    if (r.error) { lines.push(`| ${r.workload} | ${r.system} | | | FAILED | | | | | | |`); continue; }
+    lines.push(`| ${r.workload} | ${r.system} | ${sz(r)} | ${fmt(r.witness_ms.median)} | **${fmt(r.prove_ms.median)}** | ${fmt(r.prove_ms.p90)} | ${fmt(r.verify_ms.median)} | ${r.proof_bytes.toLocaleString('en-US')} B | ${r.peak_rss_mb.prove} MB | ${r.host_busy_pct_before == null ? 'n/a' : `${r.host_busy_pct_before}%`} | ${r.load_avg_1m_before} |`);
   }
   lines.push('', 'Notes:', '');
   for (const r of d.results.filter((r) => r.rerun_at)) lines.push(`- \`${r.workload} / ${r.system}\` was re-run separately at ${r.rerun_at} (load 1m before: ${r.load_avg_1m_before}).`);
+  lines.push('- Host busy before: CPU utilisation of the whole machine over 1 s, sampled while the benchmark was idle just before the cell. It measures other processes; load 1m does not, because it also counts the benchmark\'s own threads.');
   lines.push('- `noir-ultrahonk`: proof timed as a native `bb prove` CLI call (includes process start and CRS load). Witness via noir_js in Node.');
   lines.push('- `circom-rapidsnark`: Groth16 via the native rapidsnark CLI (includes zkey load). Witness via snarkjs (circom WASM) in Node.');
   lines.push('- `circom-snarkjs`: Groth16 via snarkjs in Node, in-process after warmup.');
