@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+env:
+  NARGO_VERSION: 1.0.0-beta.19
+  BB_VERSION: 4.0.0-nightly.20260120
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install nargo
+        run: |
+          curl -sSL https://raw.githubusercontent.com/noir-lang/noirup/main/install | bash
+          ~/.nargo/bin/noirup -v "$NARGO_VERSION"
+          echo "$HOME/.nargo/bin" >> "$GITHUB_PATH"
+      - run: npm run lint
+      - run: npm run format:check
+
+  circuits-and-smoke-bench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install nargo and bb
+        run: |
+          curl -sSL https://raw.githubusercontent.com/noir-lang/noirup/main/install | bash
+          ~/.nargo/bin/noirup -v "$NARGO_VERSION"
+          curl -sSL https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/heads/next/barretenberg/bbup/install | bash
+          ~/.bb/bbup -v "$BB_VERSION"
+          echo "$HOME/.nargo/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.bb" >> "$GITHUB_PATH"
+      - name: Build circuits
+        run: npm run build:noir
+      - name: Committed Noir bytecode matches a fresh build
+        run: |
+          node -e '
+            const fs = require("fs"), { execSync } = require("child_process");
+            let bad = 0;
+            for (const f of fs.readdirSync("artifacts/noir")) {
+              const head = JSON.parse(execSync(`git show HEAD:artifacts/noir/${f}`, { maxBuffer: 1 << 28 }));
+              const now = JSON.parse(fs.readFileSync(`artifacts/noir/${f}`, "utf8"));
+              if (head.bytecode !== now.bytecode || JSON.stringify(head.abi) !== JSON.stringify(now.abi)) { console.error(`stale: ${f}`); bad++; }
+            }
+            process.exit(bad);'
+      - name: Smoke bench (1 rep, small workloads)
+        run: node bench/run.mjs --reps 1 --workloads cap_check,merkle20 --systems noir-ultrahonk,circom-snarkjs --machine ci-smoke --note "GitHub Actions ubuntu-latest smoke run, not a reference result"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ci-smoke-results
+          path: results/ci-smoke.*
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      - run: npm run build
+        working-directory: web

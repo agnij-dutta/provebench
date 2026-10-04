@@ -381,6 +381,13 @@ mkdirSync(join(root, 'results'), { recursive: true });
 writeFileSync(join(root, 'results', `${m.id}.json`), JSON.stringify(doc, null, 2) + '\n');
 writeFileSync(join(root, 'results', `${m.id}.md`), toMarkdown(doc));
 log(`wrote results/${m.id}.json and results/${m.id}.md`);
+// A failed cell is recorded in the results file, but the run must not look
+// like a success to CI or to a contributor scanning the exit code.
+const failed = results.filter((r) => r.error);
+if (failed.length) {
+  log(`${failed.length} cell(s) failed: ${failed.map((r) => `${r.workload}/${r.system}`).join(', ')}`);
+  process.exitCode = 1;
+}
 
 function toMarkdown(d) {
   const fmt = (x) => (x == null ? 'n/a' : x >= 1000 ? `${(x / 1000).toFixed(2)} s` : `${x.toFixed(x < 10 ? 2 : 0)} ms`);
