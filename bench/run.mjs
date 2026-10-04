@@ -92,12 +92,20 @@ const stats = (xs) => {
   };
 };
 // Run a CLI under /usr/bin/time -l; returns wall ms and max RSS (MB).
+// macOS `time -l` reports max RSS in bytes; GNU `time -v` (Linux) in kilobytes.
+// Without /usr/bin/time the CLI is run directly and peak memory is not recorded.
+const TIME_BIN = existsSync('/usr/bin/time') ? '/usr/bin/time' : null;
+const TIME_FLAG = os.platform() === 'darwin' ? '-l' : '-v';
+const peak = (xs) => (xs.some((x) => x == null) ? null : Math.round(Math.max(...xs)));
 function timed(cmd, argv) {
+  const [bin, binArgs] = TIME_BIN ? [TIME_BIN, [TIME_FLAG, cmd, ...argv]] : [cmd, argv];
   const t0 = performance.now();
-  const p = spawnSync('/usr/bin/time', ['-l', cmd, ...argv], { encoding: 'utf8', maxBuffer: 1 << 26 });
+  const p = spawnSync(bin, binArgs, { encoding: 'utf8', maxBuffer: 1 << 26 });
   const ms = performance.now() - t0;
   if (p.status !== 0) throw new Error(`${cmd} ${argv.join(' ')} failed:\n${p.stderr}\n${p.stdout}`);
-  const rss = Number(p.stderr.match(/(\d+)\s+maximum resident set size/)?.[1] ?? 0) / 1048576;
+  const mac = p.stderr.match(/(\d+)\s+maximum resident set size/)?.[1];
+  const gnu = p.stderr.match(/Maximum resident set size \(kbytes\): (\d+)/)?.[1];
+  const rss = mac ? Number(mac) / 1048576 : gnu ? Number(gnu) / 1024 : null;
   return { ms, rss_mb: rss, out: p.stdout + p.stderr };
 }
 function node(script, argv) {
@@ -208,8 +216,8 @@ function runNoir(w) {
     proof_bytes: statSync(join(dir, 'proof')).size,
     peak_rss_mb: {
       witness: Math.round(wres.max_rss_kb / 1024),
-      prove: Math.round(Math.max(...proveRss)),
-      verify: Math.round(Math.max(...verifyRss)),
+      prove: peak(proveRss),
+      verify: peak(verifyRss),
     },
     verified: true,
     notes: 'bb CLI wall time incl. process start + CRS load; default verifier target (ZK, Poseidon2 transcript).',
@@ -258,8 +266,8 @@ function runRapidsnark(w) {
     proof_json_bytes: statSync(proof).size,
     peak_rss_mb: {
       witness: Math.round(res.max_rss_kb / 1024),
-      prove: Math.round(Math.max(...proveRss)),
-      verify: Math.round(Math.max(...verifyRss)),
+      prove: peak(proveRss),
+      verify: peak(verifyRss),
     },
     verified: ok,
     notes:
@@ -398,7 +406,7 @@ function toMarkdown(d) {
       continue;
     }
     lines.push(
-      `| ${r.workload} | ${r.system} | ${sz(r)} | ${fmt(r.witness_ms.median)} | **${fmt(r.prove_ms.median)}** | ${fmt(r.prove_ms.p90)} | ${fmt(r.verify_ms.median)} | ${r.proof_bytes.toLocaleString('en-US')} B | ${r.peak_rss_mb.prove} MB | ${r.host_busy_pct_before == null ? 'n/a' : `${r.host_busy_pct_before}%`} | ${r.load_avg_1m_before} |`,
+      `| ${r.workload} | ${r.system} | ${sz(r)} | ${fmt(r.witness_ms.median)} | **${fmt(r.prove_ms.median)}** | ${fmt(r.prove_ms.p90)} | ${fmt(r.verify_ms.median)} | ${r.proof_bytes.toLocaleString('en-US')} B | ${r.peak_rss_mb.prove == null ? 'n/a' : `${r.peak_rss_mb.prove} MB`} | ${r.host_busy_pct_before == null ? 'n/a' : `${r.host_busy_pct_before}%`} | ${r.load_avg_1m_before} |`,
     );
   }
   lines.push('', 'Notes:', '');
