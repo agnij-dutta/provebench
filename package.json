@@ -1,0 +1,22 @@
+{
+  "name": "provebench",
+  "private": true,
+  "type": "module",
+  "description": "Open benchmark: how fast is ZK proving, really, on a laptop, in a browser, and on your phone?",
+  "license": "MIT",
+  "scripts": {
+    "inputs": "node scripts/gen-inputs.mjs",
+    "build:noir": "bash scripts/build-noir.sh",
+    "build:circom": "bash scripts/build-circom.sh",
+    "bench": "node bench/run.mjs",
+    "web:dev": "npm --prefix web run dev",
+    "web:build": "npm --prefix web run build"
+  },
+  "devDependencies": {
+    "@noble/curves": "^2.4.0",
+    "@noir-lang/noir_js": "^1.0.0-beta.19",
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "snarkjs": "^0.7.6"
+  }
+}

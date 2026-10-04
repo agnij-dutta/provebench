@@ -1,0 +1,6 @@
+[package]
+name = "cap_check"
+type = "bin"
+authors = ["Agnij Dutta"]
+
+[dependencies]

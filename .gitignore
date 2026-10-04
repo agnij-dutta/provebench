@@ -1,0 +1,9 @@
+node_modules/
+build/
+circuits/noir/*/target/
+web/node_modules/
+web/dist/
+web/public/data/
+.DS_Store
+# ~290 MB, regenerate with: bash scripts/build-circom.sh sha256_1k
+artifacts/circom/sha256_1k.zkey

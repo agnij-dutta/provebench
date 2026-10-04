@@ -1,0 +1,50 @@
+{
+  "noir": {
+    "cap_check": {
+      "gates": 3128,
+      "acir_opcodes": 176
+    },
+    "ecdsa_secp256k1": {
+      "gates": 42180,
+      "acir_opcodes": 162
+    },
+    "merkle20": {
+      "gates": 37262,
+      "acir_opcodes": 12801
+    },
+    "merkle20_poseidon2": {
+      "gates": 3044,
+      "acir_opcodes": 84
+    },
+    "poseidon2_chain": {
+      "gates": 7457,
+      "acir_opcodes": 202
+    },
+    "poseidon_chain": {
+      "gates": 92256,
+      "acir_opcodes": 31201
+    },
+    "sha256_1k": {
+      "gates": 72215,
+      "acir_opcodes": 1692
+    }
+  },
+  "circom": {
+    "cap_check": {
+      "constraints": 4224,
+      "wires": 4177
+    },
+    "merkle20": {
+      "constraints": 4840,
+      "wires": 4862
+    },
+    "poseidon_chain": {
+      "constraints": 23700,
+      "wires": 23702
+    },
+    "sha256_1k": {
+      "constraints": 522393,
+      "wires": 517090
+    }
+  }
+}

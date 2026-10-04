@@ -1,0 +1,476 @@
+{
+  "schema": "provebench/browser@1",
+  "generated_at": "2026-10-04T06:57:35.953Z",
+  "device": {
+    "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+    "browser": "Chrome 154",
+    "os": "macOS",
+    "model": "MacBook Air (M4, 16 GB)",
+    "mobile": false,
+    "kind": "desktop",
+    "cores": 10,
+    "memory_gb_hint": 16,
+    "cross_origin_isolated": true,
+    "wasm_threads": true,
+    "screen": "1470x956@2x",
+    "label": "MacBook Air M4 · Chrome 154 · macOS"
+  },
+  "reps": 3,
+  "threads": 10,
+  "app_version": "0.1.0",
+  "results": [
+    {
+      "workload": "merkle20",
+      "system": "noir-ultrahonk",
+      "witness_ms": {
+        "median": 214.53,
+        "p90": 231.87,
+        "min": 213.32,
+        "max": 231.87,
+        "n": 3,
+        "samples": [
+          231.87,
+          214.53,
+          213.32
+        ]
+      },
+      "prove_ms": {
+        "median": 2433.41,
+        "p90": 2466.36,
+        "min": 2419,
+        "max": 2466.36,
+        "n": 3,
+        "samples": [
+          2466.36,
+          2419,
+          2433.41
+        ]
+      },
+      "verify_ms": {
+        "median": 743.66,
+        "p90": 833.64,
+        "min": 730.45,
+        "max": 833.64,
+        "n": 3,
+        "samples": [
+          743.66,
+          833.64,
+          730.45
+        ]
+      },
+      "e2e_ms_median": 2647.94,
+      "first_run_ms": 2882,
+      "proof_bytes": 16256,
+      "download_bytes": 1434089,
+      "verified": true
+    },
+    {
+      "workload": "merkle20",
+      "system": "circom-groth16",
+      "witness_ms": {
+        "median": 14.47,
+        "p90": 14.89,
+        "min": 10.72,
+        "max": 14.89,
+        "n": 3,
+        "samples": [
+          14.89,
+          14.47,
+          10.72
+        ]
+      },
+      "prove_ms": {
+        "median": 522.62,
+        "p90": 528.51,
+        "min": 509.64,
+        "max": 528.51,
+        "n": 3,
+        "samples": [
+          522.62,
+          528.51,
+          509.64
+        ]
+      },
+      "verify_ms": {
+        "median": 14.57,
+        "p90": 15.31,
+        "min": 13.73,
+        "max": 15.31,
+        "n": 3,
+        "samples": [
+          13.73,
+          15.31,
+          14.57
+        ]
+      },
+      "e2e_ms_median": 537.09,
+      "first_run_ms": 670,
+      "proof_bytes": 256,
+      "download_bytes": 4716079,
+      "verified": true
+    },
+    {
+      "workload": "cap_check",
+      "system": "noir-ultrahonk",
+      "witness_ms": {
+        "median": 2.12,
+        "p90": 2.19,
+        "min": 1.99,
+        "max": 2.19,
+        "n": 3,
+        "samples": [
+          2.12,
+          1.99,
+          2.19
+        ]
+      },
+      "prove_ms": {
+        "median": 317.42,
+        "p90": 332.03,
+        "min": 313.43,
+        "max": 332.03,
+        "n": 3,
+        "samples": [
+          317.42,
+          313.43,
+          332.03
+        ]
+      },
+      "verify_ms": {
+        "median": 65.67,
+        "p90": 66.49,
+        "min": 64.1,
+        "max": 66.49,
+        "n": 3,
+        "samples": [
+          65.67,
+          66.49,
+          64.1
+        ]
+      },
+      "e2e_ms_median": 319.54,
+      "first_run_ms": 327,
+      "proof_bytes": 16256,
+      "download_bytes": 4028,
+      "verified": true
+    },
+    {
+      "workload": "cap_check",
+      "system": "circom-groth16",
+      "witness_ms": {
+        "median": 7.11,
+        "p90": 17.78,
+        "min": 6.41,
+        "max": 17.78,
+        "n": 3,
+        "samples": [
+          7.11,
+          6.41,
+          17.78
+        ]
+      },
+      "prove_ms": {
+        "median": 226.17,
+        "p90": 246.72,
+        "min": 225.19,
+        "max": 246.72,
+        "n": 3,
+        "samples": [
+          226.17,
+          225.19,
+          246.72
+        ]
+      },
+      "verify_ms": {
+        "median": 15.81,
+        "p90": 16.5,
+        "min": 13.12,
+        "max": 16.5,
+        "n": 3,
+        "samples": [
+          15.81,
+          13.12,
+          16.5
+        ]
+      },
+      "e2e_ms_median": 233.28,
+      "first_run_ms": 265,
+      "proof_bytes": 256,
+      "download_bytes": 2866574,
+      "verified": true
+    },
+    {
+      "workload": "poseidon_chain",
+      "system": "noir-ultrahonk",
+      "witness_ms": {
+        "median": 512.45,
+        "p90": 564.57,
+        "min": 510.43,
+        "max": 564.57,
+        "n": 3,
+        "samples": [
+          564.57,
+          510.43,
+          512.45
+        ]
+      },
+      "prove_ms": {
+        "median": 4656.71,
+        "p90": 4686.75,
+        "min": 4642,
+        "max": 4686.75,
+        "n": 3,
+        "samples": [
+          4656.71,
+          4686.75,
+          4642
+        ]
+      },
+      "verify_ms": {
+        "median": 1494.87,
+        "p90": 1502.18,
+        "min": 1493.88,
+        "max": 1502.18,
+        "n": 3,
+        "samples": [
+          1502.18,
+          1494.87,
+          1493.88
+        ]
+      },
+      "e2e_ms_median": 5169.16,
+      "first_run_ms": 5222,
+      "proof_bytes": 16256,
+      "download_bytes": 3489485,
+      "verified": true
+    },
+    {
+      "workload": "poseidon_chain",
+      "system": "circom-groth16",
+      "witness_ms": {
+        "median": 42.84,
+        "p90": 49.66,
+        "min": 39.24,
+        "max": 49.66,
+        "n": 3,
+        "samples": [
+          42.84,
+          39.24,
+          49.66
+        ]
+      },
+      "prove_ms": {
+        "median": 2226.76,
+        "p90": 2284.03,
+        "min": 2122.86,
+        "max": 2284.03,
+        "n": 3,
+        "samples": [
+          2122.86,
+          2226.76,
+          2284.03
+        ]
+      },
+      "verify_ms": {
+        "median": 15.81,
+        "p90": 21.21,
+        "min": 13.46,
+        "max": 21.21,
+        "n": 3,
+        "samples": [
+          15.81,
+          21.21,
+          13.46
+        ]
+      },
+      "e2e_ms_median": 2269.6,
+      "first_run_ms": 2257,
+      "proof_bytes": 256,
+      "download_bytes": 15683951,
+      "verified": true
+    },
+    {
+      "workload": "ecdsa_secp256k1",
+      "system": "noir-ultrahonk",
+      "witness_ms": {
+        "median": 3.88,
+        "p90": 4.12,
+        "min": 3.22,
+        "max": 4.12,
+        "n": 3,
+        "samples": [
+          4.12,
+          3.88,
+          3.22
+        ]
+      },
+      "prove_ms": {
+        "median": 2149.28,
+        "p90": 2188.64,
+        "min": 2136.88,
+        "max": 2188.64,
+        "n": 3,
+        "samples": [
+          2188.64,
+          2149.28,
+          2136.88
+        ]
+      },
+      "verify_ms": {
+        "median": 658.03,
+        "p90": 791.73,
+        "min": 604.47,
+        "max": 791.73,
+        "n": 3,
+        "samples": [
+          658.03,
+          604.47,
+          791.73
+        ]
+      },
+      "e2e_ms_median": 2153.16,
+      "first_run_ms": 2273,
+      "proof_bytes": 16256,
+      "download_bytes": 4385,
+      "verified": true
+    },
+    {
+      "workload": "merkle20_poseidon2",
+      "system": "noir-ultrahonk",
+      "witness_ms": {
+        "median": 5.75,
+        "p90": 5.81,
+        "min": 4.92,
+        "max": 5.81,
+        "n": 3,
+        "samples": [
+          4.92,
+          5.75,
+          5.81
+        ]
+      },
+      "prove_ms": {
+        "median": 478.83,
+        "p90": 480.61,
+        "min": 471.69,
+        "max": 480.61,
+        "n": 3,
+        "samples": [
+          478.83,
+          480.61,
+          471.69
+        ]
+      },
+      "verify_ms": {
+        "median": 135.56,
+        "p90": 141.94,
+        "min": 132.04,
+        "max": 141.94,
+        "n": 3,
+        "samples": [
+          141.94,
+          132.04,
+          135.56
+        ]
+      },
+      "e2e_ms_median": 484.58,
+      "first_run_ms": 558,
+      "proof_bytes": 16256,
+      "download_bytes": 53586,
+      "verified": true
+    },
+    {
+      "workload": "sha256_1k",
+      "system": "noir-ultrahonk",
+      "witness_ms": {
+        "median": 51.35,
+        "p90": 57.87,
+        "min": 49.5,
+        "max": 57.87,
+        "n": 3,
+        "samples": [
+          57.87,
+          51.35,
+          49.5
+        ]
+      },
+      "prove_ms": {
+        "median": 3683.13,
+        "p90": 3750.11,
+        "min": 3620.22,
+        "max": 3750.11,
+        "n": 3,
+        "samples": [
+          3750.11,
+          3683.13,
+          3620.22
+        ]
+      },
+      "verify_ms": {
+        "median": 1086.2,
+        "p90": 1088.46,
+        "min": 1070.54,
+        "max": 1088.46,
+        "n": 3,
+        "samples": [
+          1088.46,
+          1086.2,
+          1070.54
+        ]
+      },
+      "e2e_ms_median": 3734.48,
+      "first_run_ms": 4184,
+      "proof_bytes": 16256,
+      "download_bytes": 144658,
+      "verified": true,
+      "run_at": "2026-10-04T06:59Z"
+    },
+    {
+      "workload": "sha256_1k",
+      "system": "circom-groth16",
+      "witness_ms": {
+        "median": 1357.09,
+        "p90": 1449.56,
+        "min": 1306.54,
+        "max": 1449.56,
+        "n": 3,
+        "samples": [
+          1449.56,
+          1306.54,
+          1357.09
+        ]
+      },
+      "prove_ms": {
+        "median": 13909.82,
+        "p90": 14703.23,
+        "min": 13515.13,
+        "max": 14703.23,
+        "n": 3,
+        "samples": [
+          13909.82,
+          14703.23,
+          13515.13
+        ]
+      },
+      "verify_ms": {
+        "median": 43.29,
+        "p90": 62.32,
+        "min": 10.51,
+        "max": 62.32,
+        "n": 3,
+        "samples": [
+          62.32,
+          10.51,
+          43.29
+        ]
+      },
+      "e2e_ms_median": 15266.91,
+      "first_run_ms": 18627,
+      "proof_bytes": 256,
+      "download_bytes": 294614764,
+      "verified": true,
+      "run_at": "2026-10-04T06:59Z"
+    }
+  ],
+  "note": "Reference run by the maintainer via vite preview on localhost. Device model filled in by hand (desktop Chrome does not expose it). Host load average (1/5/15 min) was 11.26 / 14.90 / 23.55 at start and 18.84 / 16.38 / 23.37 at end: other workloads were running. SHA-256 cells were run separately a few minutes later (opt-in heavy workload, 3 reps, host load 13.37 / 15.08 / 21.97 at start)."
+}
