@@ -1,5 +1,7 @@
 # ProveBench
 
+Live: https://provebench.vercel.app
+
 **How fast is ZK proving, really? The same statements and inputs, proved by different systems, on a laptop, in a browser and on your phone.**
 
 ProveBench is an open benchmark for developers choosing a proving stack. It runs identical workloads (Poseidon hash chains, a depth-20 Merkle proof, SHA-256 of 1 KiB, ECDSA secp256k1, a spending-cap check) through Noir/UltraHonk and Circom/Groth16, natively and in the browser, and reports witness time, proving time, verification time, proof size and peak memory, with the conditions each number was measured under.
@@ -55,7 +57,9 @@ What the numbers say, on this one machine:
 
 ## Quickstart
 
-Prerequisites: Node 20+, `nargo` 1.0.0-beta.19 (`noirup -v 1.0.0-beta.19`), `bb` 4.0.0-nightly.20260120 (`bbup -v 4.0.0-nightly.20260120`). macOS or Linux.
+To run the browser suite on your own device with nothing to install, open [provebench.vercel.app](https://provebench.vercel.app) and press "Run benchmark". The hosted build has every circuit and key except the SHA-256 Groth16 key (about 290 MB, not committed), so that one cell is not offered there.
+
+To run the native benchmark, prerequisites: Node 20+, `nargo` 1.0.0-beta.19 (`noirup -v 1.0.0-beta.19`), `bb` 4.0.0-nightly.20260120 (`bbup -v 4.0.0-nightly.20260120`). macOS or Linux.
 
 ```bash
 git clone https://github.com/agnij-dutta/provebench && cd provebench
@@ -125,7 +129,7 @@ On a phone: `npm run dev -- --host` and open the LAN URL. Browsers only allow mu
 
 Automation: `/?autorun=1&reps=3` runs the default suite on load and exposes the result as `window.__provebench`.
 
-Hosting: any static host works if it sends `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp` (`web/public/_headers` for Netlify or Cloudflare Pages, `web/vercel.json` for Vercel).
+Hosting: any static host works if it sends `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp` (`web/public/_headers` for Netlify or Cloudflare Pages, the root `vercel.json` for Vercel). The hosted copy at https://provebench.vercel.app deploys from `main` with that `vercel.json`.
 
 ## Submitting a result
 
