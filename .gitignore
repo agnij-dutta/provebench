@@ -12,3 +12,4 @@ artifacts/circom/sha256_1k.zkey
 *.pem
 *.key
 results/zz-*
+.vercel
